@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git"
+    "url": "git+https://github.com/LovroNguyen/advanced-discord-owo-tool-farm.git"
   },
   "keywords": [
     "discord-owo-selfbot",
@@ -33,14 +33,14 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/issues"
+    "url": "https://github.com/LovroNguyen/advanced-discord-owo-tool-farm/issues"
   },
-  "homepage": "https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm#readme",
+  "homepage": "https://github.com/LovroNguyen/advanced-discord-owo-tool-farm#readme",
   "dependencies": {
     "@inquirer/core": "^10.1.14",
     "@inquirer/prompts": "^7.6.0",
     "2captcha": "^3.0.5-2",
-    "adm-zip": "^0.5.16",
+    "adm-zip": "^0.6.1",
     "axios": "^1.10.0",
     "axios-cookiejar-support": "^6.0.3",
     "chalk": "^5.4.1",

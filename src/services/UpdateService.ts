@@ -22,21 +22,23 @@ export class UpdateFeature {
         logger.info(t("system.update.checkingForUpdates"));
         try {
             const { version: currentVersion } = packageJSON;
-            const { data: { version: latestVersion } } = await axios.get(
-                "https://raw.githubusercontent.com/Kyou-Izumi/advanced-discord-owo-tool-farm/refs/heads/main/package.json",
+            const response = await axios.get(
+                "https://raw.githubusercontent.com/LovroNguyen/advanced-discord-owo-tool-farm/refs/heads/main/package.json",
                 {
-                    headers: this.baseHeaders
+                    headers: this.baseHeaders,
+                    timeout: 5000
                 }
             );
 
-            if (currentVersion < latestVersion) {
+            const latestVersion = response.data?.version;
+            if (latestVersion && currentVersion < latestVersion) {
                 logger.info(t("system.update.newVersionAvailable", { latestVersion, currentVersion }));
                 return true;
             }
 
             logger.info(t("system.update.latestVersion", { currentVersion }));
-        } catch (error) {
-            logger.error(`Failed to check for updates:` + error);
+        } catch (error: any) {
+            logger.warn(`Could not check for remote updates (offline or standalone repository): ${error?.message || error}`);
         }
 
         return false;
@@ -58,7 +60,7 @@ export class UpdateFeature {
     private manualUpdate = async () => {
         try {
             const extractedFolderName = await downloadAndExtractRepo(
-                "https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/archive/refs/heads/main.zip",
+                "https://github.com/LovroNguyen/advanced-discord-owo-tool-farm/archive/refs/heads/main.zip",
                 os.tmpdir()
             );
             const extractedPath = path.join(os.tmpdir(), extractedFolderName);
