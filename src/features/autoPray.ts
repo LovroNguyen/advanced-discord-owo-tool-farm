@@ -18,7 +18,10 @@ export default Schematic.registerFeature({
         const check = await agent.awaitResponse({
             trigger: () => agent.send(command),
             filter: (m) => m.author.id == agent.owoID
-                && m.content.includes(m.guild?.members.me?.displayName!)
+                && Boolean(
+                    (m.guild?.members.me?.displayName && m.content.includes(m.guild.members.me.displayName))
+                    || (m.client.user?.username && m.content.includes(m.client.user.username))
+                )
                 && m.content.includes("I could not find that user!"),
         });
 

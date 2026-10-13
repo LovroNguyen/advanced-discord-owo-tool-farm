@@ -39,9 +39,9 @@ export class ExtendedClient<Ready extends boolean = boolean> extends Client<Read
 
             try {
                 if (token) {
-                    this.login(token)
+                    this.login(token).catch(reject);
                 } else {
-                    this.QRLogin()
+                    this.QRLogin();
                 }
             } catch (error) {
                 reject(error);

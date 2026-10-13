@@ -117,12 +117,16 @@ export default Schematic.registerFeature({
         const huntbotMsg = await agent.awaitResponse({
             trigger: () => agent.send("huntbot"),
             filter: m => m.author.id === agent.owoID
-                && (
+                && Boolean(
                     m.content.includes("BEEP BOOP. I AM BACK")
                     || (
                         m.embeds.length > 0
                         && m.embeds[0].author !== null
-                        && m.embeds[0].author.name.includes(m.guild?.members.me?.displayName!)
+                        && (
+                            (m.guild?.members.me?.displayName && m.embeds[0].author.name.includes(m.guild.members.me.displayName))
+                            || (m.client.user?.username && m.embeds[0].author.name.includes(m.client.user.username))
+                            || (m.client.user?.displayName && m.embeds[0].author.name.includes(m.client.user.displayName))
+                        )
                         && m.embeds[0].author.name.includes("HuntBot")
                     )
                 )
@@ -165,7 +169,11 @@ export default Schematic.registerFeature({
         const passwordMsg = await agent.awaitResponse({
             trigger: () => agent.send("huntbot 24h"),
             filter: m => m.author.id === agent.owoID
-                && m.content.includes(m.guild?.members.me?.displayName!)
+                && Boolean(
+                    (m.guild?.members.me?.displayName && m.content.includes(m.guild.members.me.displayName))
+                    || (m.client.user?.username && m.content.includes(m.client.user.username))
+                    || (m.client.user?.displayName && m.content.includes(m.client.user.displayName))
+                )
                 && (
                     m.content.includes("I AM STILL HUNTING")
                     || (
@@ -214,7 +222,11 @@ export default Schematic.registerFeature({
         const resultMsg = await agent.awaitResponse({
             trigger: () => agent.send(`huntbot 24h ${password}`),
             filter: m => m.author.id === agent.owoID
-                && m.content.includes(m.guild?.members.me?.displayName!)
+                && Boolean(
+                    (m.guild?.members.me?.displayName && m.content.includes(m.guild.members.me.displayName))
+                    || (m.client.user?.username && m.content.includes(m.client.user.username))
+                    || (m.client.user?.displayName && m.content.includes(m.client.user.displayName))
+                )
                 && m.content.includes("BEEP BOOP.")
         })
 

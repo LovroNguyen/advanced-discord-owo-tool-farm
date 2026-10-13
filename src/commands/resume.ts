@@ -7,13 +7,14 @@ export default Schematic.registerCommand({
     aliases: ["unpause"],
     usage: "resume",
     execute: async ({ agent, message, t }) => {
-        if (!agent.farmLoopPaused) {
+        if (!agent.farmLoopPaused && !agent.captchaDetected) {
             return message.reply({
                 content: t("commands.resume.notPaused")
             });
         }
 
         agent.farmLoopPaused = false;
+        agent.captchaDetected = false;
         logger.info(t("logging.farmLoop.resumed"));
 
         if (!agent.farmLoopRunning) {

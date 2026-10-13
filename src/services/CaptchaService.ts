@@ -204,6 +204,35 @@ export class CaptchaService {
             NotificationService.consoleNotify(params);
         }
 
+        // If no automated solver API is configured, immediately dispatch critical notification for manual solve
+        if (!agent.config.captchaAPI || !agent.config.apiKey) {
+            logger.alert("Captcha detected! No automated solver configured. Manual resolution required on https://owobot.com/captcha");
+            logger.info(`Waiting for captcha resolution to ${agent.config.autoResume ? "resume" : "stop"}...`);
+
+            agent.totalCaptchaFailed++;
+            await notificationService.notify(params, {
+                title: "CAPTCHA DETECTED - MANUAL SOLVE REQUIRED",
+                description: "Status: ⚠️ **ACTION REQUIRED**\nPlease solve the captcha manually at https://owobot.com/captcha",
+                urgency: "critical",
+                content: `${agent.config.adminID ? `<@${agent.config.adminID}> ` : ""}⚠️ **Captcha detected!** Please solve manually at: https://owobot.com/captcha`,
+                sourceUrl: "https://owobot.com/captcha",
+                imageUrl: message.attachments.first()?.url,
+                fields: [
+                    {
+                        name: "Verification Link",
+                        value: "[Click Here to Solve Captcha](https://owobot.com/captcha)",
+                        inline: true
+                    },
+                    {
+                        name: "Channel",
+                        value: `<#${message.channel.id}>`,
+                        inline: true
+                    }
+                ]
+            });
+            return;
+        }
+
         try {
             const attachmentUrl = message.attachments.first()?.url;
             if (attachmentUrl) {

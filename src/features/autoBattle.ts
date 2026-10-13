@@ -9,7 +9,13 @@ export default Schematic.registerFeature({
         await agent.awaitResponse({
             trigger: () => agent.send("battle"),
             filter: (m) => m.author.id === agent.owoID && m.embeds.length > 0
-                && Boolean(m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName!)),
+                && Boolean(
+                    m.embeds[0].author?.name && (
+                        (m.guild?.members.me?.displayName && m.embeds[0].author.name.includes(m.guild.members.me.displayName))
+                        || (m.client.user?.username && m.embeds[0].author.name.includes(m.client.user.username))
+                        || (m.client.user?.displayName && m.embeds[0].author.name.includes(m.client.user.displayName))
+                    )
+                ),
             expectResponse: true,
         })
     },

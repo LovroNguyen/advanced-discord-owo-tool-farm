@@ -110,8 +110,12 @@ export default Schematic.registerFeature({
         const huntMsg = await agent.awaitResponse({
             trigger: () => agent.send("hunt"),
             filter: (m) => m.author.id === agent.owoID
-                && m.content.includes(m.guild?.members.me?.displayName!)
-                && /hunt is empowered by|spent 5 .+ and caught a/.test(m.content),
+                && Boolean(
+                    (m.guild?.members.me?.displayName && m.content.includes(m.guild.members.me.displayName))
+                    || (m.client.user?.username && m.content.includes(m.client.user.username))
+                    || (m.client.user?.displayName && m.content.includes(m.client.user.displayName))
+                )
+                && /hunt is empowered by|spent 5 .+ and caught a|caught a|found a/i.test(m.content),
             expectResponse: true,
         });
 
