@@ -13,6 +13,7 @@ Please report bugs and keep on track with our announcement!
 
 ```
 >>> Captcha from owobot.com/captcha is now supported
+>>> Real-Time Web Dashboard & 13-Tier Animal Catch Rarity Matrix now available!
 ```
 
 > [!TIP]
@@ -156,8 +157,40 @@ npm start import config.json # Trigger auto import and run with given config.jso
 ```sh
     -s, --skip-check-update # Skip the update check
     -u, --update # Update without asking
-    -v, --verbose # Enable debug
 ```
+
+## 🖥️ Web Dashboard & Live Monitor
+
+The tool comes equipped with a modern, high-end Web Dashboard operating via local WebSocket / Server-Sent Events (SSE) at `http://localhost:4040` (or your configured port).
+
+### Features:
+- **📊 Real-Time Farm Metrics**: Live tracking of commands sent, Hunt / Battle / Quote counts, and Cowoncy earned vs. spent with net profit calculations.
+- **🐾 13-Tier Animal Catch Rarity Matrix**:
+  - Live session counter starting at `0` every run.
+  - Covers all 13 distinct tiers with official animated tier GIFs and PNG badges:
+    * **Common**
+    * **Uncommon**
+    * **Rare**
+    * **Epic**
+    * **Mythical**
+    * **Legendary**
+    * **Fabled**
+    * **Gem**
+    * **Hidden**
+    * **Patreon**
+    * **Custom Patreon (`cpatreon`)**
+    * **Distorted**
+    * **Special**
+  - **Gem Multi-Catch Support**: Accurately detects and maps up to 20 animals per hunt when powered by hunting gems (`You found: :bee: :bug:...`).
+  - **Standard Single Catch**: Handles free hunts and cowoncy-cost hunts (`spent 5 :cowoncy: and caught an uncommon :uncommon: :baby_chick:!`), filtering out team XP gains.
+- **⏱️ Continuous Runtime & Sleep Mode**:
+  - Real-time continuous uptime counter.
+  - Live Sleep Mode status badge and countdown timer (`zzZ Sleeping... Xm Ys remaining`) with command count until next rest gap.
+- **🎮 Interactive Remote Controls**:
+  - **Pause / Resume**: Freeze and unfreeze farming loops on demand.
+  - **Stop**: Safely shut down the selfbot from the browser.
+  - **Sync Cash**: Prompt OwO for the latest balance.
+- **📜 Live Log Console**: Color-coded, streaming event feed with instant error and captcha alerts.
 
 ## Configuration Guide
 
@@ -260,7 +293,9 @@ npm start import config.json # Trigger auto import and run with given config.jso
     "autoSleep": true, // Create random pause gaps (5-20 mins)
     "autoReload": true, // Auto reload config daily
     "autoResume": true, // Auto resume after solving captcha
-    "showRPC": true // Show Discord Rich Presence
+    "showRPC": true, // Show Discord Rich Presence
+    "enableDashboard": true, // Enable real-time Web Dashboard (default: true)
+    "dashboardPort": 4040 // Port for Web Dashboard (default: 4040)
 }
 ```
 ### Complete Example
@@ -293,7 +328,9 @@ npm start import config.json # Trigger auto import and run with given config.jso
     "autoSleep": true,
     "autoReload": true,
     "autoResume": true,
-    "showRPC": true
+    "showRPC": true,
+    "enableDashboard": true,
+    "dashboardPort": 4040
 }
 ```
 
@@ -526,6 +563,10 @@ For more information: [SECURITY.md](doc/security/README.md)
 
 ✔ __Open source__
 
+✔ __Modern Web Dashboard UI (Live metrics, bot controls, sleep countdown, and 13-tier animal catch matrix)__
+
+✔ __13-Tier Animal Catch Rarity Matrix with official animated tier badges & gem multi-hunt parsing__
+
 ❌ ~~Use Slash Command~~ [removed due to instability]
 
 ❌ ~~Automatic gamble (slot/coinflip)~~ [blackjack removed due to instability]
@@ -537,8 +578,6 @@ __-- Coming soon list --__
 ⬜ Selfbot captcha solving API (No longer 3rd party)
 
 ⬜ Automatic vote OwO on top.gg (in testing)
-
-⬜ Application with UI support
 
 ## Sparkling Soul
 

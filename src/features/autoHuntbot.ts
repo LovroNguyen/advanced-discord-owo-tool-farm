@@ -156,8 +156,17 @@ export default Schematic.registerFeature({
 
             const match = huntingField.value.match(/IN\s((\d+)H\s)?(\d+)M/i);
             if (match) {
-                return parseInt(match[2] || "0") * 60 * 60 * 1000
-                    + parseInt(match[3]) * 60 * 1000
+                const hours = parseInt(match[2] || "0");
+                const minutes = parseInt(match[3] || "0");
+                agent.metricsTracker.updateHuntbot({
+                    status: "hunting",
+                    remainingSeconds: (hours * 3600) + (minutes * 60),
+                    hours,
+                    minutes,
+                    trait: agent.config.autoTrait,
+                });
+                return hours * 60 * 60 * 1000
+                    + minutes * 60 * 1000
                     + ranInt(0, 5 * 60 * 1000); // Add random upto 5 mins
             }
 
@@ -196,6 +205,14 @@ export default Schematic.registerFeature({
 
             const hours = parseInt(matchTime?.[2] || "0");
             const minutes = parseInt(matchTime?.[3] || "10");
+
+            agent.metricsTracker.updateHuntbot({
+                status: "hunting",
+                remainingSeconds: (hours * 3600) + (minutes * 60),
+                hours,
+                minutes,
+                trait: agent.config.autoTrait,
+            });
 
             logger.info(t("features.autoHuntbot.inHunting", { hours, minutes }));
             return hours * 60 * 60 * 1000 + minutes * 60 * 1000 + ranInt(0, 5 * 60 * 1000); // Add random upto 5 mins
@@ -236,6 +253,14 @@ export default Schematic.registerFeature({
 
         const hours = parseInt(matchTime?.[2] || "0");
         const minutes = parseInt(matchTime?.[3] || "10");
+
+        agent.metricsTracker.updateHuntbot({
+            status: "hunting",
+            remainingSeconds: (hours * 3600) + (minutes * 60),
+            hours,
+            minutes,
+            trait: agent.config.autoTrait,
+        });
 
         logger.info(t("features.autoHuntbot.huntbotSent", { hours, minutes }));
 

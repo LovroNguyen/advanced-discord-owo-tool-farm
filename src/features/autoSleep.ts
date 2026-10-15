@@ -12,7 +12,7 @@ export default Schematic.registerFeature({
 
         return agent.config.autoSleep && (agent.totalCommands + agent.totalTexts) - agent.lastSleepAt >= agent.autoSleepThreshold;
     },
-    run: ({ agent, t }) => {
+    run: async ({ agent, t }) => {
         const commandsSinceLastSleep = (agent.totalCommands + agent.totalTexts) - agent.lastSleepAt;
         let sleepTime = mapInt(commandsSinceLastSleep, 32, 600, 5 * 60 * 1000, 45 * 60 * 1000);
         sleepTime = ranInt(sleepTime * 0.65, sleepTime * 1.35); // Add some randomness to the sleep time
@@ -35,6 +35,14 @@ export default Schematic.registerFeature({
             ))
         }));
 
-        return agent.client.sleep(sleepTime)
+        // Broadcast sleep state to dashboard
+        agent.metricsTracker.startSleep(sleepTime, nextThreshold);
+
+        await agent.client.sleep(sleepTime);
+
+        // Resume online state after waking up
+        agent.metricsTracker.endSleep(nextThreshold);
+
+        return;
     }
 })

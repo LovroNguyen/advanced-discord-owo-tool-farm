@@ -70,6 +70,8 @@ export const ConfigSchema = z.object({
     autoReload: z.boolean().default(true),
     autoResume: z.boolean().default(true),
     showRPC: z.boolean().default(true),
+    enableDashboard: z.boolean().default(true).optional(),
+    dashboardPort: z.number().default(4040).optional(),
 }).check(({ issues, value }) => {
     if (value.wayNotify.includes("webhook") && !value.webhookURL) {
         issues.push({

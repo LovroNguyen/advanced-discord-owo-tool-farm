@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OwO Sentinel — Live Operations Matrix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #050505;
+            --surface-outer: rgba(255, 255, 255, 0.035);
+            --surface-inner: #09090b;
+            --surface-inner-highlight: rgba(255, 255, 255, 0.07);
+            --border-hairline: rgba(255, 255, 255, 0.08);
+            --border-subtle: rgba(255, 255, 255, 0.04);
+
+            --accent-emerald: #10B981;
+            --accent-mint: #34D399;
+            --accent-glow: rgba(16, 185, 129, 0.18);
+            --accent-warn: #F59E0B;
+            --accent-danger: #EF4444;
+
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --text-muted: #4B5563;
+
+            --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient Radiant Mesh */
+        .ambient-orb {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            opacity: 0.45;
+        }
+
+        .ambient-orb-1 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, rgba(5, 5, 5, 0) 70%);
+            top: -120px;
+            right: 10%;
+        }
+
+        .ambient-orb-2 {
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(6, 78, 59, 0.35) 0%, rgba(5, 5, 5, 0) 70%);
+            bottom: 5%;
+            left: 5%;
+        }
+
+        /* Subtle Noise Film */
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.025;
+            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .layout-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 24px 60px;
+        }
+
+        /* Floating Island Navbar */
+        .island-nav {
+            margin: 0 auto 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px 8px 20px;
+            background: rgba(18, 18, 22, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-hairline);
+            border-radius: 9999px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-cluster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981, #064E3B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #050505;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .brand-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .version-pill {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-family: var(--font-sans);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-hairline);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+            transition: all 0.25s var(--ease-fluid);
+            user-select: none;
+        }
+
+        .control-btn svg {
+            width: 13px;
+            height: 13px;
+            stroke-width: 2;
+        }
+
+        .control-btn:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: var(--accent-mint);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .control-btn.paused-active {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: var(--accent-warn);
+        }
+
+        .control-btn.btn-danger {
+            border-color: rgba(239, 68, 68, 0.28);
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .control-btn.btn-danger:hover {
+            background: rgba(239, 68, 68, 0.16);
+            border-color: rgba(239, 68, 68, 0.55);
+            color: #fca5a5;
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.28);
+            transform: translateY(-1px);
+        }
+
+        .control-btn.btn-danger.stopped-active {
+            background: rgba(239, 68, 68, 0.22);
+            border-color: rgba(239, 68, 68, 0.65);
+            color: #ef4444;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .event-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            transition: all 0.3s var(--ease-fluid);
+        }
+
+        .event-pill:hover {
+            background: rgba(245, 158, 11, 0.14);
+            border-color: rgba(245, 158, 11, 0.45);
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+        }
+
+        .event-pill .event-icon {
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .event-pill .event-label {
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(251, 191, 36, 0.85);
+            letter-spacing: 0.02em;
+        }
+
+        .event-pill .event-time {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: #fef08a;
+            letter-spacing: -0.01em;
+        }
+
+        .pulse-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: var(--accent-mint);
+        }
+
+        .pulse-status.paused {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: var(--accent-warn);
+        }
+
+        .pulse-status.sleeping {
+            background: rgba(139, 92, 246, 0.12);
+            border-color: rgba(139, 92, 246, 0.35);
+            color: #C4B5FD;
+            animation: gentleSleepBlink 3s infinite ease-in-out;
+        }
+
+        @keyframes gentleSleepBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .sleep-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+        }
+
+        .sleep-row.is-sleeping {
+            color: #C4B5FD;
+            font-weight: 600;
+        }
+
+        .pulse-status.stopped {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: var(--accent-danger);
+        }
+
+        .pulse-status.captcha {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--accent-danger);
+            animation: urgentBlink 1.2s infinite;
+        }
+
+        @keyframes urgentBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.65;
+                transform: scale(0.98);
+            }
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .account-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 12px 3px 5px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-hairline);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .account-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-hairline);
+        }
+
+        /* Double-Bezel Architectural System (Doppelrand) */
+        .double-bezel {
+            background: var(--surface-outer);
+            border: 1px solid var(--border-hairline);
+            border-radius: 28px;
+            padding: 6px;
+            transition: transform 0.6s var(--ease-fluid), border-color 0.4s var(--ease-fluid), box-shadow 0.6s var(--ease-fluid);
+            position: relative;
+        }
+
+        .double-bezel:hover {
+            border-color: rgba(16, 185, 129, 0.25);
+            box-shadow: 0 25px 50px -18px rgba(0, 0, 0, 0.8), 0 0 30px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .bezel-core {
+            background: var(--surface-inner);
+            border-radius: 22px;
+            padding: 24px;
+            height: 100%;
+            box-shadow: inset 0 1px 1px var(--surface-inner-highlight);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Asymmetric Bento Layout */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .col-span-8 {
+            grid-column: span 8;
+        }
+
+        .col-span-4 {
+            grid-column: span 4;
+        }
+
+        .col-span-3 {
+            grid-column: span 3;
+        }
+
+        .col-span-6 {
+            grid-column: span 6;
+        }
+
+        .col-span-12 {
+            grid-column: span 12;
+        }
+
+        .col-span-7 {
+            grid-column: span 7;
+        }
+
+        .col-span-5 {
+            grid-column: span 5;
+        }
+
+        /* Card Elements */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .eyebrow-tag {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .eyebrow-tag svg {
+            width: 14px;
+            height: 14px;
+            stroke-width: 1.5;
+            color: var(--accent-mint);
+        }
+
+        .hero-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-value-huge {
+            font-family: var(--font-mono);
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            line-height: 1.1;
+            font-feature-settings: 'tnum';
+        }
+
+        .metric-value-large {
+            font-family: var(--font-mono);
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            line-height: 1.15;
+            font-feature-settings: 'tnum';
+        }
+
+        .metric-subtext {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .gain-pill {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--accent-mint);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .gain-pill.negative {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--accent-danger);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .stat-comparison {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .total-sub {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .total-sub:hover {
+            color: var(--accent-mint) !important;
+            text-decoration: underline;
+        }
+
+        /* Micro Progress Bar */
+        .progress-rail {
+            width: 100%;
+            height: 4px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #10B981, #34D399);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+            transition: width 0.8s var(--ease-fluid);
+        }
+
+        /* Interactive SVG Line Chart Container */
+        .chart-card {
+            min-height: 380px;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-pill {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-hairline);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-fluid);
+        }
+
+        .filter-pill.active {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.35);
+            color: var(--accent-mint);
+        }
+
+        .chart-viewport {
+            width: 100%;
+            height: 250px;
+            position: relative;
+        }
+
+        svg.spline-chart {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: url(#lineGradient);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3));
+            transition: d 0.8s var(--ease-fluid);
+        }
+
+        .chart-area {
+            fill: url(#areaGradient);
+            transition: d 0.8s var(--ease-fluid);
+        }
+
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.035);
+            stroke-width: 1;
+            stroke-dasharray: 4 4;
+        }
+
+        /* Daily Bar Chart Elements */
+        .bar-col-hover {
+            fill: rgba(255, 255, 255, 0);
+            cursor: pointer;
+            transition: fill 0.25s var(--ease-fluid);
+        }
+
+        .bar-col-hover:hover {
+            fill: rgba(255, 255, 255, 0.03);
+        }
+
+        .bar-rect {
+            fill: url(#barGradient);
+            transition: height 0.6s var(--ease-fluid), y 0.6s var(--ease-fluid);
+            filter: drop-shadow(0 4px 10px rgba(16, 185, 129, 0.2));
+        }
+
+        .bar-rect.today {
+            fill: url(#todayBarGradient);
+            filter: drop-shadow(0 4px 16px rgba(16, 185, 129, 0.45));
+        }
+
+        .bar-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            fill: var(--text-secondary);
+            text-anchor: middle;
+        }
+
+        .bar-label.today {
+            fill: var(--accent-mint);
+            font-weight: 700;
+        }
+
+        .bar-val-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            fill: var(--text-muted);
+            text-anchor: middle;
+            transition: y 0.6s var(--ease-fluid);
+        }
+
+        /* Animal Catch Rarity Matrix & Sparkle System */
+        .rarity-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .rarity-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-hairline);
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.3s var(--ease-fluid);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rarity-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .rarity-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .rarity-badge {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        .rarity-icon-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+            transition: transform 0.25s var(--ease-fluid);
+        }
+
+        .rarity-card:hover .rarity-icon-img {
+            transform: scale(1.16);
+        }
+
+        .rarity-fallback {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .rarity-c,
+        .rarity-u,
+        .rarity-r,
+        .rarity-e,
+        .rarity-m,
+        .rarity-l,
+        .rarity-f,
+        .rarity-gem,
+        .rarity-hidden,
+        .rarity-patreon,
+        .rarity-cpatreon,
+        .rarity-distorted,
+        .rarity-event {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .rarity-hidden .rarity-icon-img {
+            filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.9)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.6));
+        }
+
+        .rarity-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .rarity-count {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .rarity-share {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Speedometer Gauge Styles */
+        .gauge-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+            padding-top: 6px;
+        }
+
+        .gauge-svg {
+            width: 220px;
+            height: 125px;
+            overflow: visible;
+        }
+
+        .gauge-needle {
+            transform-origin: 120px 120px;
+            transition: transform 0.8s var(--ease-fluid);
+        }
+
+        .gauge-readout {
+            text-align: center;
+            margin-top: -12px;
+        }
+
+        .gauge-speed-val {
+            font-family: var(--font-mono);
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .gauge-subtext {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+
+        .safety-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 3px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-mint);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .safety-pill.caution {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-warn);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .safety-pill.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(9, 9, 11, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-hairline);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transition: opacity 0.2s var(--ease-fluid), transform 0.2s var(--ease-fluid);
+            transform: translate(-50%, -120%);
+            white-space: nowrap;
+            z-index: 20;
+        }
+
+        .tooltip-val {
+            font-weight: 700;
+            color: var(--accent-mint);
+        }
+
+        .tooltip-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Footer telemetry bar */
+        .footer-telemetry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 24px;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot-green {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 900px) {
+
+            .col-span-8,
+            .col-span-4,
+            .col-span-3,
+            .col-span-6,
+            .col-span-7,
+            .col-span-5,
+            .col-span-12 {
+                grid-column: span 12;
+            }
+
+            .rarity-matrix {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .island-nav {
+                flex-direction: column;
+                gap: 12px;
+                border-radius: 24px;
+                padding: 14px;
+            }
+
+            .layout-container {
+                padding: 16px 12px 40px;
+            }
+
+            .metric-value-huge {
+                font-size: 34px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-orb ambient-orb-1"></div>
+    <div class="ambient-orb ambient-orb-2"></div>
+    <div class="noise-overlay"></div>
+
+    <div class="layout-container">
+        <!-- Floating Island Navbar -->
+        <nav class="island-nav">
+            <div class="brand-cluster">
+                <div class="brand-badge">Ω</div>
+                <div class="brand-title">
+                    <span>OwO Sentinel</span>
+                    <span class="version-pill">v4.0.0 Alpha</span>
+                </div>
+            </div>
+
+            <!-- Remote Controls (Item 2) -->
+            <div class="nav-controls">
+                <button class="control-btn" id="btnTogglePause" title="Pause or Resume bot farming loop">
+                    <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                    <span id="pauseBtnLabel">Pause</span>
+                </button>
+                <button class="control-btn btn-danger" id="btnStopBot" title="Stop bot process and terminate safely">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect>
+                    </svg>
+                    <span id="stopBtnLabel">Stop</span>
+                </button>
+                <button class="control-btn" id="btnSyncCash" title="Query owo cash immediately to sync balance">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                    </svg>
+                    <span>Sync Cash</span>
+                </button>
+            </div>
+
+            <div class="nav-meta">
+                <!-- Event Countdown (Small Noti) -->
+                <div class="event-pill" id="eventPill" title="OwO October Event Ends 15-Oct-26 1:45 PM">
+                    <span class="event-icon">🎃</span>
+                    <span class="event-label">Oct Event:</span>
+                    <span class="event-time" id="eventCountdown">--d --h</span>
+                </div>
+
+                <div class="pulse-status" id="botStatusBadge">
+                    <span class="pulse-dot"></span>
+                    <span id="botStatusText">Gateway Live</span>
+                </div>
+
+                <div class="account-pill">
+                    <img id="userAvatar" src="https://i.imgur.com/9wrvM38.png" alt="Avatar" class="account-avatar">
+                    <span id="userName">Syncing...</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Bento Grid Layer -->
+        <div class="bento-grid">
+            <!-- Hero Cowoncy Balance Card (col-span-8) -->
+            <div class="double-bezel col-span-8">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 7v10M9 9.5h6a1.5 1.5 0 0 0 0-3H9v6h6a1.5 1.5 0 0 1 0 3H9" />
+                            </svg>
+                            Total Cowoncy
+                        </span>
+                        <span class="gain-pill" id="cowoncyGain">+0 this session</span>
+                    </div>
+
+                    <div class="hero-metric">
+                        <div class="metric-value-huge" id="currentCowoncy">0</div>
+                        <div class="metric-subtext">
+                            <span>Started session with <strong id="startingCowoncy"
+                                    style="color: var(--text-primary); font-family: var(--font-mono);">0</strong>
+                                cowoncy</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-rail">
+                        <div class="progress-fill" id="economyProgress" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uptime & Channel (col-span-4) -->
+            <div class="double-bezel col-span-4">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            Continuous Runtime
+                        </span>
+                        <span class="version-pill" id="sleepPill" title="Anti-captcha random sleep cycle status">💤 Sleep: ~50 cmds</span>
+                    </div>
+
+                    <div class="hero-metric">
+                        <div class="metric-value-large" id="uptimeCounter">00:00:00</div>
+                        <div class="metric-subtext">
+                            <span>Active Channel: <strong id="channelName"
+                                    style="color: var(--accent-mint); font-family: var(--font-mono);">#general</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="sleep-row" id="sleepRow">
+                        <span id="sleepStateLabel">Next Sleep:</span>
+                        <span id="sleepProgressText">0 / 0 cmds</span>
+                    </div>
+
+                    <div class="progress-rail" style="margin-top: 6px;">
+                        <div class="progress-fill" id="sleepProgressFill"
+                            style="width: 0%; background: linear-gradient(90deg, #8B5CF6, #A78BFA);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hunt Card (col-span-3) -->
+            <div class="double-bezel col-span-3">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            Hunt
+                        </span>
+                        <span class="version-pill" id="huntRate">0/hr</span>
+                    </div>
+
+                    <div class="hero-metric">
+                        <div class="stat-comparison">
+                            <div class="metric-value-large" id="sessionHunts">0</div>
+                            <span class="total-sub" onclick="editAllTime('hunts')" title="Click to adjust/sync all-time hunts baseline" style="cursor: pointer;">/ <span id="totalHunts">0</span> all-time ✎</span>
+                        </div>
+                        <div class="metric-subtext">Hunts dispatched this session</div>
+                    </div>
+
+                    <div class="progress-rail">
+                        <div class="progress-fill" id="huntFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battle Card (col-span-3) -->
+            <div class="double-bezel col-span-3">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polygon
+                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                            Battles
+                        </span>
+                        <span class="version-pill" id="battleRate">0/hr</span>
+                    </div>
+
+                    <div class="hero-metric">
+                        <div class="stat-comparison">
+                            <div class="metric-value-large" id="sessionBattles">0</div>
+                            <span class="total-sub" onclick="editAllTime('battles')" title="Click to adjust/sync all-time battles baseline" style="cursor: pointer;">/ <span id="totalBattles">0</span> all-time ✎</span>
+                        </div>
+                        <div class="metric-subtext">Battles fought this session</div>
+                    </div>
+
+                    <div class="progress-rail">
+                        <div class="progress-fill" id="battleFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quotes & OwO Texts (col-span-3) -->
+            <div class="double-bezel col-span-3">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            OwO Texts
+                        </span>
+                        <span class="version-pill" id="captchaPill">0 Captchas</span>
+                    </div>
+
+                    <div class="hero-metric">
+                        <div class="stat-comparison">
+                            <div class="metric-value-large" id="sessionTexts">0</div>
+                            <span class="total-sub" onclick="editAllTime('texts')" title="Click to adjust/sync all-time texts baseline" style="cursor: pointer;">/ <span id="totalTexts">0</span> all-time ✎</span>
+                        </div>
+                        <div class="metric-subtext">Chat activity pulses</div>
+                    </div>
+
+                    <div class="progress-rail">
+                        <div class="progress-fill" id="textFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HuntBot Expedition Card (col-span-3) (Item 4) -->
+            <div class="double-bezel col-span-3">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="m4.93 4.93 4.24 4.24" />
+                                <path d="m14.83 9.17 4.24-4.24" />
+                                <path d="m14.83 14.83 4.24 4.24" />
+                                <path d="m9.17 14.83-4.24 4.24" />
+                            </svg>
+                            HuntBot
+                        </span>
+                        <span class="version-pill" id="huntbotStatusPill">Idle</span>
+                    </div>
+
+                    <div class="hero-metric">
+                        <div class="stat-comparison">
+                            <div class="metric-value-large" id="huntbotTimer">--:--:--</div>
+                        </div>
+                        <div class="metric-subtext">
+                            <span>Trait: <strong id="huntbotTrait"
+                                    style="color: var(--accent-mint); font-family: var(--font-mono);">Efficiency</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="progress-rail">
+                        <div class="progress-fill" id="huntbotFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Animal Catch Rarity Matrix (col-span-7) -->
+            <div class="double-bezel col-span-7">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <polygon
+                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                            Animal Catch Rarity Matrix
+                        </span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="gain-pill" id="totalCatchesPill">0 Animals</span>
+                        </div>
+                    </div>
+
+                    <div class="rarity-matrix">
+                        <!-- Common (C) -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-c" title="Common Tier">
+                                    <img src="/assets/rarities/common.png" alt="Common" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/9/9b/Common_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">C</span>
+                                </div>
+                                <span class="rarity-name">Common</span>
+                            </div>
+                            <div class="rarity-count" id="countCommon">0</div>
+                            <div class="rarity-share" id="shareCommon">0%</div>
+                        </div>
+
+                        <!-- Uncommon (U) -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-u" title="Uncommon Tier">
+                                    <img src="/assets/rarities/uncommon.png" alt="Uncommon" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/1/1b/Uncommon_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">U</span>
+                                </div>
+                                <span class="rarity-name">Uncommon</span>
+                            </div>
+                            <div class="rarity-count" id="countUncommon">0</div>
+                            <div class="rarity-share" id="shareUncommon">0%</div>
+                        </div>
+
+                        <!-- Rare (R) -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-r" title="Rare Tier">
+                                    <img src="/assets/rarities/rare.png" alt="Rare" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/6/6a/Rare_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">R</span>
+                                </div>
+                                <span class="rarity-name">Rare</span>
+                            </div>
+                            <div class="rarity-count" id="countRare">0</div>
+                            <div class="rarity-share" id="shareRare">0%</div>
+                        </div>
+
+                        <!-- Epic (E) -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-e" title="Epic Tier">
+                                    <img src="/assets/rarities/epic.png" alt="Epic" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/b/b5/Epic_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">E</span>
+                                </div>
+                                <span class="rarity-name">Epic</span>
+                            </div>
+                            <div class="rarity-count" id="countEpic">0</div>
+                            <div class="rarity-share" id="shareEpic">0%</div>
+                        </div>
+
+                        <!-- Mythical (M) -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-m" title="Mythical Tier">
+                                    <img src="/assets/rarities/mythical.png" alt="Mythical" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/7/7b/Mythical_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">M</span>
+                                </div>
+                                <span class="rarity-name">Mythical</span>
+                            </div>
+                            <div class="rarity-count" id="countMythical">0</div>
+                            <div class="rarity-share" id="shareMythical">0%</div>
+                        </div>
+
+                        <!-- Legendary (L) with native GIF sparkle! -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-l" title="Legendary Tier ✨ (Animated GIF)">
+                                    <img src="/assets/rarities/legendary.gif" alt="Legendary" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/2/2c/Legendary_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">L</span>
+                                </div>
+                                <span class="rarity-name" style="color: #facc15;">Legendary</span>
+                            </div>
+                            <div class="rarity-count" id="countLegendary" style="color: #facc15;">0</div>
+                            <div class="rarity-share" id="shareLegendary">0%</div>
+                        </div>
+
+                        <!-- Fabled (F) with native GIF sparkle! -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-f" title="Fabled Tier 🔥 (Animated GIF)">
+                                    <img src="/assets/rarities/fabled.gif" alt="Fabled" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/d/da/Fabled_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">F</span>
+                                </div>
+                                <span class="rarity-name" style="color: #fb923c;">Fabled</span>
+                            </div>
+                            <div class="rarity-count" id="countFabled" style="color: #fb923c;">0</div>
+                            <div class="rarity-share" id="shareFabled">0%</div>
+                        </div>
+
+                        <!-- Gem (G) with native GIF sparkle! -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-gem" title="Gem Tier 💎 (Animated GIF)">
+                                    <img src="/assets/rarities/gem.gif" alt="Gem" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/b/b3/Gem_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">G</span>
+                                </div>
+                                <span class="rarity-name" style="color: #38bdf8;">Gem</span>
+                            </div>
+                            <div class="rarity-count" id="countGem" style="color: #38bdf8;">0</div>
+                            <div class="rarity-share" id="shareGem">0%</div>
+                        </div>
+
+                        <!-- Hidden (H) with native GIF sparkle! -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-hidden" title="Hidden Tier 👁️ (Animated GIF)">
+                                    <img src="/assets/rarities/hidden.gif" alt="Hidden" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/8/8b/Hidden_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">H</span>
+                                </div>
+                                <span class="rarity-name" style="color: #2dd4bf;">Hidden</span>
+                            </div>
+                            <div class="rarity-count" id="countHidden" style="color: #2dd4bf;">0</div>
+                            <div class="rarity-share" id="shareHidden">0%</div>
+                        </div>
+
+                        <!-- Patreon (P) -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-patreon" title="Patreon Tier 🌟">
+                                    <img src="/assets/rarities/patreon.png" alt="Patreon" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/6/6d/Patreon_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">P</span>
+                                </div>
+                                <span class="rarity-name" style="color: #f43f5e;">Patreon</span>
+                            </div>
+                            <div class="rarity-count" id="countPatreon" style="color: #f43f5e;">0</div>
+                            <div class="rarity-share" id="sharePatreon">0%</div>
+                        </div>
+
+                        <!-- Custom Patreon (CP) with native GIF sparkle! -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-cpatreon" title="Custom Patreon Tier 👑 (Animated GIF)">
+                                    <img src="/assets/rarities/cpatreon.gif" alt="Custom Patreon" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/4/4c/Custom_Patreon_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">CP</span>
+                                </div>
+                                <span class="rarity-name" style="color: #f472b6;">C. Patreon</span>
+                            </div>
+                            <div class="rarity-count" id="countCpatreon" style="color: #f472b6;">0</div>
+                            <div class="rarity-share" id="shareCpatreon">0%</div>
+                        </div>
+
+                        <!-- Distorted (D) with native GIF sparkle! -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-distorted" title="Distorted Tier ⚡ (Animated GIF)">
+                                    <img src="/assets/rarities/distorted.gif" alt="Distorted" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/9/94/Distorted_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">D</span>
+                                </div>
+                                <span class="rarity-name" style="color: #c084fc;">Distorted</span>
+                            </div>
+                            <div class="rarity-count" id="countDistorted" style="color: #c084fc;">0</div>
+                            <div class="rarity-share" id="shareDistorted">0%</div>
+                        </div>
+
+                        <!-- Special / Event Pet -->
+                        <div class="rarity-card">
+                            <div class="rarity-top">
+                                <div class="rarity-badge rarity-event" title="Special / Event Tier 🎃">
+                                    <img src="/assets/rarities/special.png" alt="Special/Event" class="rarity-icon-img"
+                                        referrerpolicy="no-referrer"
+                                        onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/c/c0/Special_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
+                                    <span class="rarity-fallback" style="display:none;">🎃</span>
+                                </div>
+                                <span class="rarity-name" style="color: #fbbf24;">Special</span>
+                            </div>
+                            <div class="rarity-count" id="countEvent" style="color: #fbbf24;">0</div>
+                            <div class="rarity-share" id="shareEvent">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hourly Command Efficiency Gauge (col-span-5) -->
+            <div class="double-bezel col-span-5">
+                <div class="bezel-core">
+                    <div class="card-header">
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 14 10" />
+                            </svg>
+                            Cadence & Efficiency Gauge
+                        </span>
+                        <span class="version-pill">Speedometer</span>
+                    </div>
+
+                    <div class="gauge-wrapper">
+                        <svg class="gauge-svg" viewBox="0 0 240 135">
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#10B981" />
+                                    <stop offset="60%" stop-color="#34D399" />
+                                    <stop offset="85%" stop-color="#F59E0B" />
+                                    <stop offset="100%" stop-color="#EF4444" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Background Arc -->
+                            <path d="M 30 120 A 90 90 0 0 1 210 120" fill="none" stroke="rgba(255, 255, 255, 0.06)"
+                                stroke-width="12" stroke-linecap="round" />
+                            <!-- Active Value Arc -->
+                            <path id="gaugeArc" d="M 30 120 A 90 90 0 0 1 210 120" fill="none"
+                                stroke="url(#gaugeGradient)" stroke-width="12" stroke-linecap="round"
+                                style="filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); stroke-dasharray: 283; stroke-dashoffset: 140; transition: stroke-dashoffset 0.8s ease;" />
+                            <!-- Gauge Needle -->
+                            <g class="gauge-needle" id="gaugeNeedle" style="transform: rotate(0deg);">
+                                <polygon points="117,120 123,120 120,40" fill="#F8FAFC"
+                                    style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));" />
+                                <circle cx="120" cy="120" r="7" fill="#10B981" stroke="#09090B" stroke-width="2" />
+                            </g>
+                        </svg>
+
+                        <div class="gauge-readout">
+                            <div class="gauge-speed-val" id="gaugeSpeedVal">0</div>
+                            <div class="gauge-subtext">actions per hour</div>
+                            <div class="safety-pill" id="safetyPill">
+                                <span class="status-dot-green" id="safetyDot"></span>
+                                <span id="safetyText">Optimal Cadence</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 7-Day Daily Performance Chart (col-span-12) -->
+        <div class="double-bezel col-span-12 chart-card">
+            <div class="bezel-core">
+                <div class="chart-header">
+                    <div>
+                        <span class="eyebrow-tag">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            7-Day Daily Performance & Output
+                        </span>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+                            Daily aggregated Cowoncy profit and command volume across the past 7 days
+                        </div>
+                    </div>
+
+                    <div class="chart-controls">
+                        <button class="filter-pill active" id="btnChartCowoncy">Daily Cowoncy Gain</button>
+                        <button class="filter-pill" id="btnChartActions">Daily Action Volume</button>
+                    </div>
+                </div>
+
+                <div class="chart-viewport" id="chartViewport">
+                    <div class="chart-tooltip" id="chartTooltip">
+                        <div class="tooltip-val" id="tooltipVal">0</div>
+                        <div class="tooltip-time" id="tooltipTime">00:00:00</div>
+                    </div>
+                    <svg class="spline-chart" id="svgChart" viewBox="0 0 1000 220" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#10B981" />
+                                <stop offset="100%" stop-color="#047857" />
+                            </linearGradient>
+                            <linearGradient id="todayBarGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#34D399" />
+                                <stop offset="50%" stop-color="#10B981" />
+                                <stop offset="100%" stop-color="#059669" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Baseline floor line -->
+                        <line x1="0" y1="185" x2="1000" y2="185" class="grid-line" />
+                        <!-- Dynamic Bars and Labels Container -->
+                        <g id="chartDynamicGroup"></g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Micro Telemetry Footer -->
+        <footer class="footer-telemetry">
+            <div class="footer-item">
+                <span class="status-dot-green"></span>
+                <span>SSE Stream Synchronized • Localhost:4040</span>
+            </div>
+            <div class="footer-item">
+                <span>Advanced OwO Tool Farm • Vanguard Edition</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let chartMode = 'balance'; // 'balance' or 'actions'
+        let currentSnapshot = null;
+        let uptimeSeconds = 0;
+
+        const formatNumber = (num) => {
+            return new Intl.NumberFormat().format(num || 0);
+        };
+
+        const formatDuration = (totalSeconds) => {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = Math.floor(totalSeconds % 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        };
+
+        let dailyChartMode = 'cowoncy'; // 'cowoncy' or 'actions'
+
+        function renderDailyChart(dailyHistory) {
+            if (!dailyHistory || dailyHistory.length === 0) return;
+
+            const svg = document.getElementById('svgChart');
+            const tooltip = document.getElementById('chartTooltip');
+            const tooltipVal = document.getElementById('tooltipVal');
+            const tooltipTime = document.getElementById('tooltipTime');
+
+            const svgWidth = 1000;
+            const svgHeight = 220;
+            const bottomMargin = 35;
+            const topMargin = 30;
+            const chartHeight = svgHeight - bottomMargin - topMargin;
+
+            // Extract values based on mode
+            const values = dailyHistory.map(d => dailyChartMode === 'cowoncy' ? Math.max(0, d.cowoncyGain || 0) : ((d.hunts || 0) + (d.battles || 0)));
+            const maxVal = Math.max(...values, 10);
+            const avgVal = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+
+            const dynamicGroup = document.getElementById('chartDynamicGroup');
+            if (!dynamicGroup) return;
+            dynamicGroup.innerHTML = '';
+
+            // Draw Average Line if avgVal > 0
+            if (avgVal > 0) {
+                const avgY = (svgHeight - bottomMargin) - ((avgVal / maxVal) * chartHeight);
+                const avgLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                avgLine.setAttribute('x1', '40');
+                avgLine.setAttribute('y1', avgY);
+                avgLine.setAttribute('x2', '960');
+                avgLine.setAttribute('y2', avgY);
+                avgLine.setAttribute('class', 'grid-line');
+                avgLine.setAttribute('stroke', 'rgba(16, 185, 129, 0.25)');
+                avgLine.setAttribute('stroke-dasharray', '5 5');
+                dynamicGroup.appendChild(avgLine);
+
+                const avgLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                avgLabel.setAttribute('x', '955');
+                avgLabel.setAttribute('y', avgY - 5);
+                avgLabel.setAttribute('fill', 'rgba(16, 185, 129, 0.6)');
+                avgLabel.setAttribute('font-size', '10');
+                avgLabel.setAttribute('font-family', 'var(--font-mono)');
+                avgLabel.setAttribute('text-anchor', 'end');
+                avgLabel.textContent = `Avg: ${formatNumber(avgVal)}`;
+                dynamicGroup.appendChild(avgLabel);
+            }
+
+            const colWidth = svgWidth / dailyHistory.length;
+            const barWidth = 44;
+
+            dailyHistory.forEach((day, idx) => {
+                const centerX = idx * colWidth + (colWidth / 2);
+                const val = dailyChartMode === 'cowoncy' ? Math.max(0, day.cowoncyGain || 0) : ((day.hunts || 0) + (day.battles || 0));
+                const barHeight = Math.max(6, (val / maxVal) * chartHeight);
+                const barY = (svgHeight - bottomMargin) - barHeight;
+                const isToday = (idx === dailyHistory.length - 1);
+
+                // Full-height background hover target
+                const hoverRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                hoverRect.setAttribute('x', idx * colWidth);
+                hoverRect.setAttribute('y', '0');
+                hoverRect.setAttribute('width', colWidth);
+                hoverRect.setAttribute('height', svgHeight);
+                hoverRect.setAttribute('class', 'bar-col-hover');
+
+                // Bar Column
+                const barRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                barRect.setAttribute('x', centerX - (barWidth / 2));
+                barRect.setAttribute('y', barY);
+                barRect.setAttribute('width', barWidth);
+                barRect.setAttribute('height', barHeight);
+                barRect.setAttribute('rx', '6');
+                barRect.setAttribute('ry', '6');
+                barRect.setAttribute('class', isToday ? 'bar-rect today' : 'bar-rect');
+
+                // X-axis Day Label
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', centerX);
+                label.setAttribute('y', svgHeight - 12);
+                label.setAttribute('class', isToday ? 'bar-label today' : 'bar-label');
+                label.textContent = day.dayShort || 'Day';
+
+                // Top Value Label
+                const valLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                valLabel.setAttribute('x', centerX);
+                valLabel.setAttribute('y', barY - 8);
+                valLabel.setAttribute('class', 'bar-val-label');
+                valLabel.textContent = val >= 1000 ? `${(val / 1000).toFixed(1)}k` : `${val}`;
+
+                // Tooltip interaction
+                hoverRect.onmouseenter = (e) => {
+                    tooltip.style.opacity = '1';
+                    const rect = svg.getBoundingClientRect();
+                    tooltip.style.left = `${(centerX / svgWidth) * rect.width}px`;
+                    tooltip.style.top = `${(barY / svgHeight) * rect.height}px`;
+
+                    if (dailyChartMode === 'cowoncy') {
+                        tooltipVal.textContent = `+${formatNumber(day.cowoncyGain || 0)} Cowoncy`;
+                        tooltipTime.textContent = `${day.dayLabel || day.date} • ${formatNumber((day.hunts || 0) + (day.battles || 0))} Actions`;
+                    } else {
+                        tooltipVal.textContent = `${formatNumber((day.hunts || 0) + (day.battles || 0))} Actions`;
+                        tooltipTime.textContent = `${day.dayLabel || day.date} • ${formatNumber(day.hunts)} Hunts, ${formatNumber(day.battles)} Battles`;
+                    }
+                };
+
+                hoverRect.onmouseleave = () => {
+                    tooltip.style.opacity = '0';
+                };
+
+                dynamicGroup.appendChild(hoverRect);
+                dynamicGroup.appendChild(barRect);
+                dynamicGroup.appendChild(label);
+                dynamicGroup.appendChild(valLabel);
+            });
+        }
+
+        function updateUI(data) {
+            currentSnapshot = data;
+            uptimeSeconds = data.uptimeSeconds || 0;
+
+            // Status Badge
+            const statusBadge = document.getElementById('botStatusBadge');
+            const statusText = document.getElementById('botStatusText');
+            if (data.status === 'captcha') {
+                statusBadge.className = 'pulse-status captcha';
+                statusText.textContent = 'Captcha Action Required';
+            } else if (data.status === 'paused') {
+                statusBadge.className = 'pulse-status paused';
+                statusText.textContent = 'Farming Paused';
+            } else if (data.status === 'sleeping') {
+                statusBadge.className = 'pulse-status sleeping';
+                statusText.textContent = 'Sleeping (Rest Period)';
+            } else if (data.status === 'stopped') {
+                statusBadge.className = 'pulse-status stopped';
+                statusText.textContent = 'Bot Stopped';
+                if (btnStopBot) {
+                    btnStopBot.disabled = true;
+                    btnStopBot.classList.add('stopped-active');
+                    stopBtnLabel.innerText = 'Stopped';
+                }
+                if (btnTogglePause) {
+                    btnTogglePause.disabled = true;
+                }
+            } else {
+                statusBadge.className = 'pulse-status';
+                statusText.textContent = 'Gateway Live';
+            }
+
+            // User meta
+            document.getElementById('userName').textContent = data.username || 'Discord User';
+            if (data.avatarUrl) {
+                document.getElementById('userAvatar').src = data.avatarUrl;
+            }
+            document.getElementById('channelName').textContent = `#${data.channel || 'general'}`;
+
+            // Cowoncy balance
+            document.getElementById('currentCowoncy').textContent = formatNumber(data.balance.current);
+            document.getElementById('startingCowoncy').textContent = formatNumber(data.balance.starting);
+
+            const gainElem = document.getElementById('cowoncyGain');
+            const gain = data.balance.netGain || 0;
+            if (gain >= 0) {
+                gainElem.className = 'gain-pill';
+                gainElem.textContent = `+${formatNumber(gain)} this session`;
+            } else {
+                gainElem.className = 'gain-pill negative';
+                gainElem.textContent = `${formatNumber(gain)} this session`;
+            }
+
+            // Hunts & Battles
+            document.getElementById('sessionHunts').textContent = formatNumber(data.session.hunts);
+            document.getElementById('totalHunts').textContent = formatNumber(data.total.hunts);
+
+            document.getElementById('sessionBattles').textContent = formatNumber(data.session.battles);
+            document.getElementById('totalBattles').textContent = formatNumber(data.total.battles);
+
+            document.getElementById('sessionTexts').textContent = formatNumber(data.session.texts);
+            document.getElementById('totalTexts').textContent = formatNumber(data.total.texts);
+
+            // Hourly rates
+            const hoursElapsed = Math.max(0.01, uptimeSeconds / 3600);
+            document.getElementById('huntRate').textContent = `${Math.round(data.session.hunts / hoursElapsed)}/hr`;
+            document.getElementById('battleRate').textContent = `${Math.round(data.session.battles / hoursElapsed)}/hr`;
+
+            const captchasSolved = data.session.captchasSolved || 0;
+            document.getElementById('captchaPill').textContent = `${captchasSolved} Solved`;
+
+            // Progress rail fills
+            const maxSession = Math.max(1, data.session.hunts, data.session.battles, data.session.texts);
+            document.getElementById('huntFill').style.width = `${Math.min(100, (data.session.hunts / maxSession) * 100)}%`;
+            document.getElementById('battleFill').style.width = `${Math.min(100, (data.session.battles / maxSession) * 100)}%`;
+            document.getElementById('textFill').style.width = `${Math.min(100, (data.session.texts / maxSession) * 100)}%`;
+
+            // Remote Pause/Resume button state sync
+            updatePauseButtonState(data.status === 'paused');
+
+            // HuntBot Info sync
+            renderHuntbot(data.huntbot);
+
+            // Sleep Info sync
+            renderSleepInfo(data.sleep);
+
+            // 7-Day Daily Bar Chart
+            renderDailyChart(data.dailyHistory);
+
+            // Rarity Matrix & Speedometer Gauge (Suggestions 3 & 5)
+            const totalActionRate = (data.session.hunts + data.session.battles) / hoursElapsed;
+            renderSpeedometer(totalActionRate);
+            renderRarities(data.rarities);
+        }
+
+        function renderSleepInfo(sleep) {
+            const sleepPill = document.getElementById('sleepPill');
+            const sleepRow = document.getElementById('sleepRow');
+            const sleepStateLabel = document.getElementById('sleepStateLabel');
+            const sleepProgressText = document.getElementById('sleepProgressText');
+            const sleepProgressFill = document.getElementById('sleepProgressFill');
+            if (!sleep) return;
+
+            if (!sleep.enabled) {
+                if (sleepPill) sleepPill.textContent = '💤 Sleep: Off';
+                if (sleepStateLabel) sleepStateLabel.textContent = 'Sleep Mode:';
+                if (sleepProgressText) sleepProgressText.textContent = 'Disabled';
+                if (sleepProgressFill) sleepProgressFill.style.width = '0%';
+                return;
+            }
+
+            if (sleep.isSleeping) {
+                const rem = sleep.sleepRemainingSeconds || 0;
+                const m = Math.floor(rem / 60);
+                const s = rem % 60;
+                const timeStr = `${m}:${String(s).padStart(2, '0')}`;
+                if (sleepPill) {
+                    sleepPill.textContent = `💤 Sleeping (${timeStr})`;
+                    sleepPill.style.background = 'rgba(139, 92, 246, 0.2)';
+                    sleepPill.style.borderColor = 'rgba(139, 92, 246, 0.5)';
+                    sleepPill.style.color = '#DDD6FE';
+                }
+                if (sleepRow) sleepRow.className = 'sleep-row is-sleeping';
+                if (sleepStateLabel) sleepStateLabel.textContent = '💤 Anti-Captcha Rest in Progress:';
+                if (sleepProgressText) sleepProgressText.textContent = `${timeStr} remaining`;
+                if (sleepProgressFill) {
+                    const total = Math.max(1, sleep.sleepTotalSeconds || 1);
+                    const pct = Math.max(0, Math.min(100, (rem / total) * 100));
+                    sleepProgressFill.style.width = `${pct}%`;
+                    sleepProgressFill.style.background = 'linear-gradient(90deg, #8B5CF6, #EC4899)';
+                }
+            } else {
+                if (sleepPill) {
+                    sleepPill.textContent = `💤 Sleep: in ~${sleep.commandsUntilSleep || 0} cmds`;
+                    sleepPill.style.background = '';
+                    sleepPill.style.borderColor = '';
+                    sleepPill.style.color = '';
+                }
+                if (sleepRow) sleepRow.className = 'sleep-row';
+                if (sleepStateLabel) sleepStateLabel.textContent = 'Next Sleep Cycle:';
+                const current = sleep.commandsSinceLastSleep || 0;
+                const total = Math.max(1, sleep.threshold || 100);
+                const pct = Math.min(100, Math.round((current / total) * 100));
+                if (sleepProgressText) sleepProgressText.textContent = `${current} / ${total} cmds (${pct}%)`;
+                if (sleepProgressFill) {
+                    sleepProgressFill.style.width = `${pct}%`;
+                    sleepProgressFill.style.background = 'linear-gradient(90deg, #8B5CF6, #A78BFA)';
+                }
+            }
+        }
+
+        function renderRarities(r) {
+            r = r || {
+                common: 0, uncommon: 0, rare: 0, epic: 0, mythical: 0, legendary: 0, fabled: 0,
+                gem: 0, hidden: 0, patreon: 0, cpatreon: 0, distorted: 0, event: 0
+            };
+            const total = (r.common || 0) + (r.uncommon || 0) + (r.rare || 0) + (r.epic || 0) + 
+                          (r.mythical || 0) + (r.legendary || 0) + (r.fabled || 0) + 
+                          (r.gem || 0) + (r.hidden || 0) + (r.patreon || 0) + 
+                          (r.cpatreon || 0) + (r.distorted || 0) + (r.event || 0);
+
+            const pill = document.getElementById('totalCatchesPill');
+            if (pill) pill.textContent = `${formatNumber(total)} Animals`;
+
+            const calcShare = (count) => total > 0 ? `${Math.round(((count || 0) / total) * 100)}%` : '0%';
+
+            const update = (idCount, idShare, val) => {
+                const ec = document.getElementById(idCount);
+                const es = document.getElementById(idShare);
+                if (ec) ec.textContent = formatNumber(val || 0);
+                if (es) es.textContent = calcShare(val || 0);
+            };
+
+            update('countCommon', 'shareCommon', r.common);
+            update('countUncommon', 'shareUncommon', r.uncommon);
+            update('countRare', 'shareRare', r.rare);
+            update('countEpic', 'shareEpic', r.epic);
+            update('countMythical', 'shareMythical', r.mythical);
+            update('countLegendary', 'shareLegendary', r.legendary);
+            update('countFabled', 'shareFabled', r.fabled);
+            update('countGem', 'shareGem', r.gem);
+            update('countHidden', 'shareHidden', r.hidden);
+            update('countPatreon', 'sharePatreon', r.patreon);
+            update('countCpatreon', 'shareCpatreon', r.cpatreon);
+            update('countDistorted', 'shareDistorted', r.distorted);
+            update('countEvent', 'shareEvent', r.event);
+        }
+
+        function renderSpeedometer(rate) {
+            const speed = Math.round(rate || 0);
+            const valElem = document.getElementById('gaugeSpeedVal');
+            if (valElem) valElem.textContent = formatNumber(speed);
+
+            // Needle angle: 0 actions = -90deg, 300 actions = +90deg
+            const pct = Math.min(1, Math.max(0, speed / 300));
+            const angle = -90 + (pct * 180);
+            const needle = document.getElementById('gaugeNeedle');
+            if (needle) needle.style.transform = `rotate(${angle}deg)`;
+
+            // Arc stroke-dashoffset: circumference = 283
+            const arc = document.getElementById('gaugeArc');
+            if (arc) {
+                const circumference = 283;
+                arc.style.strokeDashoffset = circumference * (1 - pct);
+            }
+
+            // Safety Pill
+            const pill = document.getElementById('safetyPill');
+            const text = document.getElementById('safetyText');
+            if (pill && text) {
+                if (speed === 0) {
+                    pill.className = 'safety-pill';
+                    text.textContent = 'Idle / Calibrating';
+                } else if (speed <= 190) {
+                    pill.className = 'safety-pill';
+                    text.textContent = 'Optimal Cadence (Safe)';
+                } else if (speed <= 245) {
+                    pill.className = 'safety-pill caution';
+                    text.textContent = 'Accelerated Cadence';
+                } else {
+                    pill.className = 'safety-pill danger';
+                    text.textContent = 'Caution: High Pace';
+                }
+            }
+        }
+
+        // HuntBot Countdown & Renderer (Item 4)
+        let huntbotSeconds = 0;
+        let huntbotStatus = 'idle';
+
+        function renderHuntbot(hb) {
+            if (!hb) return;
+            huntbotStatus = hb.status || 'idle';
+            huntbotSeconds = hb.remainingSeconds || 0;
+
+            const statusPill = document.getElementById('huntbotStatusPill');
+            const traitElem = document.getElementById('huntbotTrait');
+            const timerElem = document.getElementById('huntbotTimer');
+            const fillElem = document.getElementById('huntbotFill');
+
+            traitElem.textContent = hb.trait ? (hb.trait.charAt(0).toUpperCase() + hb.trait.slice(1)) : 'Efficiency';
+
+            if (huntbotStatus === 'hunting') {
+                statusPill.textContent = 'Hunting';
+                statusPill.style.color = 'var(--accent-mint)';
+                statusPill.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                statusPill.style.background = 'rgba(16, 185, 129, 0.12)';
+                timerElem.textContent = formatDuration(huntbotSeconds);
+                const pct = Math.min(100, Math.max(0, ((86400 - huntbotSeconds) / 86400) * 100));
+                fillElem.style.width = `${pct}%`;
+            } else if (huntbotStatus === 'ready') {
+                statusPill.textContent = 'Ready';
+                statusPill.style.color = '#38bdf8';
+                statusPill.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+                statusPill.style.background = 'rgba(56, 189, 248, 0.12)';
+                timerElem.textContent = 'Ready!';
+                fillElem.style.width = '100%';
+            } else {
+                statusPill.textContent = 'Idle';
+                statusPill.style.color = 'var(--text-secondary)';
+                statusPill.style.borderColor = 'var(--border-subtle)';
+                statusPill.style.background = 'rgba(255, 255, 255, 0.04)';
+                timerElem.textContent = '--:--:--';
+                fillElem.style.width = '0%';
+            }
+        }
+
+        // HuntBot smooth second countdown
+        setInterval(() => {
+            if (huntbotStatus === 'hunting' && huntbotSeconds > 0) {
+                huntbotSeconds--;
+                document.getElementById('huntbotTimer').textContent = formatDuration(huntbotSeconds);
+                const pct = Math.min(100, Math.max(0, ((86400 - huntbotSeconds) / 86400) * 100));
+                document.getElementById('huntbotFill').style.width = `${pct}%`;
+            }
+        }, 1000);
+
+        // Remote Controls Event Listeners (Item 2)
+        let isPaused = false;
+        const btnTogglePause = document.getElementById('btnTogglePause');
+        const pauseBtnLabel = document.getElementById('pauseBtnLabel');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const btnStopBot = document.getElementById('btnStopBot');
+        const stopBtnLabel = document.getElementById('stopBtnLabel');
+        const btnSyncCash = document.getElementById('btnSyncCash');
+
+        function updatePauseButtonState(paused) {
+            isPaused = paused;
+            if (paused) {
+                pauseBtnLabel.innerText = 'Resume';
+                btnTogglePause.classList.add('paused-active');
+                pauseIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+            } else {
+                pauseBtnLabel.innerText = 'Pause';
+                btnTogglePause.classList.remove('paused-active');
+                pauseIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+            }
+        }
+
+        btnTogglePause.addEventListener('click', async () => {
+            btnTogglePause.disabled = true;
+            const targetAction = isPaused ? 'resume' : 'pause';
+            try {
+                const res = await fetch(`/api/action/${targetAction}`, { method: 'POST' });
+                const json = await res.json();
+                if (json.success) {
+                    updatePauseButtonState(targetAction === 'pause');
+                }
+            } catch (err) {
+                console.error('Remote action failed:', err);
+            } finally {
+                btnTogglePause.disabled = false;
+            }
+        });
+
+        btnStopBot.addEventListener('click', async () => {
+            const confirmed = confirm("Are you sure you want to stop the bot and terminate the process?\n\nLifetime stats and daily metrics will be saved to disk.");
+            if (!confirmed) return;
+
+            btnStopBot.disabled = true;
+            btnTogglePause.disabled = true;
+            btnSyncCash.disabled = true;
+            stopBtnLabel.innerText = 'Stopping...';
+            btnStopBot.classList.add('stopped-active');
+
+            try {
+                const res = await fetch('/api/action/stop', { method: 'POST' });
+                const json = await res.json();
+                if (json.success) {
+                    stopBtnLabel.innerText = 'Stopped';
+                    const statusBadge = document.getElementById('botStatusBadge');
+                    const statusText = document.getElementById('botStatusText');
+                    statusBadge.className = 'pulse-status stopped';
+                    statusText.textContent = 'Bot Terminated';
+                }
+            } catch (err) {
+                console.error('Remote stop failed:', err);
+                stopBtnLabel.innerText = 'Stopped';
+                const statusBadge = document.getElementById('botStatusBadge');
+                const statusText = document.getElementById('botStatusText');
+                statusBadge.className = 'pulse-status stopped';
+                statusText.textContent = 'Bot Offline';
+            }
+        });
+
+        btnSyncCash.addEventListener('click', async () => {
+            btnSyncCash.disabled = true;
+            const origHTML = btnSyncCash.innerHTML;
+            btnSyncCash.innerHTML = '<span>Syncing...</span>';
+            try {
+                await fetch('/api/action/cash', { method: 'POST' });
+            } catch (err) {
+                console.error('Sync cash failed:', err);
+            } finally {
+                setTimeout(() => {
+                    btnSyncCash.innerHTML = origHTML;
+                    btnSyncCash.disabled = false;
+                }, 2000);
+            }
+        });
+
+        // Event Countdown Ticker (Small Noti - Ends 15-Oct-26 1:45 PM)
+        const eventEndTimestamp = new Date("2026-10-15T13:45:00+07:00").getTime();
+        const eventCountdownElem = document.getElementById('eventCountdown');
+
+        function updateEventCountdown() {
+            if (!eventCountdownElem) return;
+            const now = Date.now();
+            const diff = eventEndTimestamp - now;
+
+            if (diff <= 0) {
+                eventCountdownElem.textContent = "Ended";
+                return;
+            }
+
+            const totalSecs = Math.floor(diff / 1000);
+            const days = Math.floor(totalSecs / 86400);
+            const hours = Math.floor((totalSecs % 86400) / 3600);
+            const mins = Math.floor((totalSecs % 3600) / 60);
+
+            if (days > 0) {
+                eventCountdownElem.textContent = `${days}d ${hours}h ${mins}m`;
+            } else {
+                const secs = totalSecs % 60;
+                eventCountdownElem.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+
+        updateEventCountdown();
+        setInterval(updateEventCountdown, 1000);
+
+        // Live Uptime Incrementer
+        setInterval(() => {
+            uptimeSeconds++;
+            document.getElementById('uptimeCounter').textContent = formatDuration(uptimeSeconds);
+        }, 1000);
+
+        // Daily Chart Filter Button Handlers
+        document.getElementById('btnChartCowoncy').onclick = () => {
+            dailyChartMode = 'cowoncy';
+            document.getElementById('btnChartCowoncy').classList.add('active');
+            document.getElementById('btnChartActions').classList.remove('active');
+            if (currentSnapshot) renderDailyChart(currentSnapshot.dailyHistory);
+        };
+
+        document.getElementById('btnChartActions').onclick = () => {
+            dailyChartMode = 'actions';
+            document.getElementById('btnChartActions').classList.add('active');
+            document.getElementById('btnChartCowoncy').classList.remove('active');
+            if (currentSnapshot) renderDailyChart(currentSnapshot.dailyHistory);
+        };
+
+
+
+        // Real-Time Server-Sent Events (SSE) Stream
+        function connectSSE() {
+            const eventSource = new EventSource('/api/stream');
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    updateUI(data);
+                } catch (e) {
+                    console.error('Failed to parse SSE payload:', e);
+                }
+            };
+
+            eventSource.onerror = () => {
+                console.warn('SSE connection lost, reconnecting in 3 seconds...');
+                eventSource.close();
+                setTimeout(connectSSE, 3000);
+            };
+        }
+
+        // Initial snapshot fetch
+        fetch('/api/stats')
+            .then(res => res.json())
+            .then(data => updateUI(data))
+            .catch(() => console.log('Waiting for live SSE stream...'));
+
+        // Manual baseline calibrator for lifetime totals
+        async function editAllTime(type) {
+            const titles = {
+                hunts: 'All-Time Hunts Baseline',
+                battles: 'All-Time Battles Baseline',
+                texts: 'All-Time OwO Texts Baseline'
+            };
+            const currentElem = document.getElementById(type === 'hunts' ? 'totalHunts' : (type === 'battles' ? 'totalBattles' : 'totalTexts'));
+            const currentVal = currentElem ? currentElem.textContent.replace(/,/g, '') : '0';
+
+            const newVal = prompt(`Set lifetime baseline for ${titles[type] || type}:\n(Useful to synchronize with your Discord account history)`, currentVal);
+            if (newVal === null) return;
+
+            const parsed = parseInt(newVal.replace(/,/g, ''), 10);
+            if (isNaN(parsed) || parsed < 0) {
+                alert('Please enter a valid non-negative number.');
+                return;
+            }
+
+            try {
+                const payload = {};
+                payload[type] = parsed;
+                const res = await fetch('/api/action/set_totals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success && data.totals) {
+                    if (type === 'hunts' && document.getElementById('totalHunts')) {
+                        document.getElementById('totalHunts').textContent = formatNumber(data.totals.hunts);
+                    }
+                    if (type === 'battles' && document.getElementById('totalBattles')) {
+                        document.getElementById('totalBattles').textContent = formatNumber(data.totals.battles);
+                    }
+                    if (type === 'texts' && document.getElementById('totalTexts')) {
+                        document.getElementById('totalTexts').textContent = formatNumber(data.totals.texts);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to set baseline totals:', err);
+                alert('Failed to update baseline totals. Please check connection.');
+            }
+        }
+
+        connectSSE();
+    </script>
+</body>
+
+</html>

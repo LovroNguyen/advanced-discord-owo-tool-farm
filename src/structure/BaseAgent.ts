@@ -24,6 +24,8 @@ import { ExtendedClient } from "./core/ExtendedClient.js";
 import { CooldownManager } from "./core/CooldownManager.js";
 import { fileURLToPath } from "node:url";
 import { CriticalEventHandler } from "@/handlers/CriticalEventHandler.js";
+import { MetricsTracker } from "./core/MetricsTracker.js";
+import { DashboardServer } from "@/services/DashboardServer.js";
 
 export class BaseAgent {
     public readonly rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -38,6 +40,8 @@ export class BaseAgent {
     public commands = new Collection<string, CommandProps>();
     public cooldownManager = new CooldownManager();
     public features = new Collection<string, FeatureProps>();
+    public metricsTracker = MetricsTracker.getInstance();
+    public dashboardServer?: DashboardServer;
 
     public owoID = "408785106942164992"
     public prefix: string = "owo";
@@ -87,7 +91,14 @@ export class BaseAgent {
                 interval: 60 * 60,
                 filter: () => (user) => this.authorizedUserIDs.includes(user.id),
             },
-        }
+        };
+
+        this.metricsTracker.setSleepProvider(() => ({
+            enabled: !!this.config.autoSleep,
+            commandsSinceLastSleep: (this.totalCommands + this.totalTexts) - this.lastSleepAt,
+            threshold: this.autoSleepThreshold,
+            commandsUntilSleep: Math.max(0, this.autoSleepThreshold - ((this.totalCommands + this.totalTexts) - this.lastSleepAt)),
+        }));
     }
 
     public setActiveChannel = (id?: string): GuildTextBasedChannel | undefined => {
@@ -102,6 +113,7 @@ export class BaseAgent {
             const channel = this.client.channels.cache.get(channelID);
             if (channel && channel.isText()) {
                 this.activeChannel = channel as GuildTextBasedChannel;
+                this.metricsTracker.setChannel(this.activeChannel.name);
                 logger.info(t("agent.messages.activeChannelSet", { channelName: this.activeChannel.name }));
 
                 return this.activeChannel;
@@ -371,6 +383,45 @@ export class BaseAgent {
         if (this.config.showRPC) this.loadPresence();
     }
 
+    public pause = () => {
+        this.farmLoopPaused = true;
+        this.metricsTracker.setStatus("paused");
+        logger.info("⏸ Farm loop paused via dashboard remote control.");
+    }
+
+    public resume = () => {
+        this.farmLoopPaused = false;
+        this.metricsTracker.setStatus("online");
+        logger.info("▶ Farm loop resumed via dashboard remote control.");
+        if (!this.farmLoopRunning) {
+            this.farmLoop();
+        }
+    }
+
+    public stop = async () => {
+        this.farmLoopPaused = true;
+        this.metricsTracker.setStatus("stopped");
+        logger.info("🛑 Selfbot stopping via dashboard remote control...");
+        this.metricsTracker.flushToDisk();
+        setTimeout(async () => {
+            try {
+                if (this.dashboardServer) {
+                    await this.dashboardServer.stop();
+                }
+            } catch {}
+            process.exit(0);
+        }, 1000);
+    }
+
+    public checkCash = async () => {
+        if (!this.activeChannel) {
+            logger.warn("Cannot check cash: no active channel set.");
+            return;
+        }
+        logger.info("💰 Checking Cowoncy balance via 'owo cash'...");
+        await this.send("cash");
+    }
+
     public static initialize = async (client: ExtendedClient<true>, config: Configuration) => {
         logger.debug("Initializing BaseAgent...");
         if (!client.isReady()) {
@@ -384,6 +435,31 @@ export class BaseAgent {
         logger.debug("BaseAgent initialized successfully.");
         logger.info(t("agent.messages.loggedIn", { username: client.user.username }));
 
+        if (config.enableDashboard !== false) {
+            await agent.startDashboard();
+        }
+
+        // Auto-query balance on startup (Item 1)
+        setTimeout(() => {
+            agent.checkCash();
+        }, ranInt(3000, 5000));
+
         agent.farmLoop();
+    }
+
+    public startDashboard = async () => {
+        try {
+            const port = this.config.dashboardPort || 4040;
+            this.dashboardServer = new DashboardServer(port, this);
+            await this.dashboardServer.start();
+            this.metricsTracker.initSession(
+                this.client.user.username,
+                this.client.user.displayAvatarURL(),
+                this.activeChannel?.name || "general",
+                this.client.readyTimestamp
+            );
+        } catch (error) {
+            logger.warn(`Failed to start dashboard server: ${error}`);
+        }
     }
 }

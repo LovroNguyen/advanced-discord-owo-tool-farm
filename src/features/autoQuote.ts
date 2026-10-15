@@ -9,6 +9,7 @@ export default Schematic.registerFeature({
         return agent.config.autoQuote.length > 0;
     },
     run: async ({ agent }) => {
+        agent.metricsTracker.recordText();
         let quote: string;
         switch (agent.config.autoQuote[ranInt(0, agent.config.autoQuote.length)]) {
             case "owo":

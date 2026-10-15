@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepare": "tsc && tsc-alias",
-    "build": "tsc && tsc-alias",
+    "build": "tsc && tsc-alias && node -e \"const fs=require('fs'); fs.cpSync('src/web', 'dest/web', {recursive: true, force: true});\"",
     "setup": "npm install",
     "start": "npx tsx index.ts",
     "start:js": "node dest/index.js",

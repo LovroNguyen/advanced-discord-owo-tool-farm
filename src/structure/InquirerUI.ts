@@ -132,7 +132,8 @@ export class InquirerUI {
             case "qr":
                 break;
             case "token":
-                const token = await this.configPrompter.getToken();
+                const rawToken = await this.configPrompter.getToken();
+                const token = rawToken.replace(/["']/g, "").trim();
                 accountSelection = Buffer.from(token.split(".")[0], "base64").toString("utf-8");
                 this.config.token = token;
             default:

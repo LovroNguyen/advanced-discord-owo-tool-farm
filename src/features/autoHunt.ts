@@ -107,17 +107,30 @@ export default Schematic.registerFeature({
     cooldown: () => ranInt(15_000, 22_000),
     condition: async () => true,
     run: async ({ agent, t, locale }) => {
-        const huntMsg = await agent.awaitResponse({
-            trigger: () => agent.send("hunt"),
-            filter: (m) => m.author.id === agent.owoID
-                && Boolean(
-                    (m.guild?.members.me?.displayName && m.content.includes(m.guild.members.me.displayName))
-                    || (m.client.user?.username && m.content.includes(m.client.user.username))
-                    || (m.client.user?.displayName && m.content.includes(m.client.user.displayName))
-                )
-                && /hunt is empowered by|spent 5 .+ and caught a|caught a|found a/i.test(m.content),
-            expectResponse: true,
-        });
+        agent.metricsTracker.isAwaitingAutoHunt = true;
+        let huntMsg;
+        try {
+            huntMsg = await agent.awaitResponse({
+                trigger: () => agent.send("hunt"),
+                filter: (m) => m.author.id === agent.owoID
+                    && Boolean(
+                        (m.guild?.members.me?.displayName && m.content.includes(m.guild.members.me.displayName))
+                        || (m.client.user?.username && m.content.includes(m.client.user.username))
+                        || (m.client.user?.displayName && m.content.includes(m.client.user.displayName))
+                    )
+                    && /hunt is empowered by|spent 5 .+ and caught an?|caught an?|found an?|you found:/i.test(m.content),
+                expectResponse: true,
+            });
+        } finally {
+            agent.metricsTracker.isAwaitingAutoHunt = false;
+        }
+
+        if (huntMsg) {
+            agent.metricsTracker.recordHunt();
+            if (/spent 5/i.test(huntMsg.content)) {
+                agent.metricsTracker.adjustCowoncy(-5);
+            }
+        }
 
         if (!huntMsg || !agent.config.autoGem) return;
 

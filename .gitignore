@@ -6,3 +6,5 @@ dest
 logs
 assets/music.mp3
 config.json
+.agents/
+skills-lock.json

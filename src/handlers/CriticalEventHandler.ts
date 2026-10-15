@@ -18,18 +18,17 @@ export class CriticalEventHandler {
             // consoleNotify("Uncaught Exception", `Error: ${error.message}\nStack: ${error.stack}`);
         });
 
-        process.on("SIGINT", () => {
+        process.on("SIGINT", async () => {
             logger.info(t("events.sigint"));
             NotificationService.consoleNotify(params);
-            // Optionally, you can notify the user or log to a file
-            // consoleNotify("Stopping Selfbot", "Received SIGINT. Stopping selfbot...");
+            await params.agent.dashboardServer?.stop();
             process.exit(0);
         });
 
-        process.on("SIGTERM", () => {
+        process.on("SIGTERM", async () => {
             logger.info(t("events.sigterm"));
             NotificationService.consoleNotify(params);
-
+            await params.agent.dashboardServer?.stop();
             process.exit(0);
         });
     }
