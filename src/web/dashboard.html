@@ -1165,6 +1165,155 @@
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
             }
         }
+
+        /* ================= Pop-up Modal Window ================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 9990;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s var(--ease-fluid);
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            width: 100%;
+            max-width: 920px;
+            max-height: 88vh;
+            background: #0d0d11;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 30px 90px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(16, 185, 129, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.25s var(--ease-fluid);
+        }
+
+        .modal-overlay.open .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 22px 28px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            margin-top: 4px;
+            color: var(--text-primary);
+        }
+
+        .modal-subtext {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .mono-code {
+            font-family: var(--font-mono);
+            color: var(--accent-mint);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .modal-close-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-hairline);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: var(--accent-danger);
+            transform: rotate(90deg);
+        }
+
+        .modal-close-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.5;
+        }
+
+        .modal-tabs-bar {
+            padding: 12px 28px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .modal-body {
+            padding: 20px 28px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-emerald);
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 28px;
+            border-top: 1px solid var(--border-subtle);
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        .modal-footer-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
     </style>
 </head>
 
@@ -1205,7 +1354,7 @@
                     </svg>
                     <span>Sync Cash</span>
                 </button>
-                <button class="control-btn" id="btnConfigScroll" title="Configure bot automation modules and user settings">
+                <button class="control-btn" id="btnConfigScroll" onclick="openConfigModal()" title="Configure bot automation modules and user settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="3" />
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -1679,257 +1828,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- User Configuration & Automation Controls (col-span-12) -->
-            <div class="double-bezel col-span-12" id="configSection">
-                <div class="bezel-core">
-                    <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
-                        <div>
-                            <span class="eyebrow-tag">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <circle cx="12" cy="12" r="3" />
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                                </svg>
-                                Automation Modules & User Config
-                            </span>
-                            <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-                                Toggle farm modules, gem usage, and safety behaviors in real-time. Changes sync directly to the bot and <span style="font-family: var(--font-mono); color: var(--accent-mint);">config.json</span>.
-                            </div>
-                        </div>
-
-                        <div class="config-tabs-cluster">
-                            <button class="config-tab-btn active" data-tab="all">All Modules</button>
-                            <button class="config-tab-btn" data-tab="farming">🏹 Farming & Combat</button>
-                            <button class="config-tab-btn" data-tab="economy">💎 Economy & Items</button>
-                            <button class="config-tab-btn" data-tab="safety">🛡️ Safety & System</button>
-                        </div>
-                    </div>
-
-                    <!-- Config Grid -->
-                    <div class="config-grid" id="configGrid">
-                        <!-- 1. Auto Hunt -->
-                        <div class="config-item-card" data-cat="farming">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🏹 Auto Hunt</div>
-                                <div class="config-item-desc">Dispatches owo hunt on cooldown</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoHunt" onchange="toggleConfig('autoHunt', this.checked, 'Auto Hunt')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 2. Auto Battle -->
-                        <div class="config-item-card" data-cat="farming">
-                            <div class="config-item-info">
-                                <div class="config-item-title">⚔️ Auto Battle</div>
-                                <div class="config-item-desc">Dispatches owo battle on cooldown</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoBattle" onchange="toggleConfig('autoBattle', this.checked, 'Auto Battle')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 3. Auto Quote / OwO -->
-                        <div class="config-item-card" data-cat="farming">
-                            <div class="config-item-info">
-                                <div class="config-item-title">💬 Auto OwO / Quotes</div>
-                                <div class="config-item-desc">Sends chat pulses to level up and keep active</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoQuoteEnabled" onchange="toggleConfig('autoQuoteEnabled', this.checked, 'Auto OwO/Quotes')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 4. Auto RPP -->
-                        <div class="config-item-card" data-cat="farming">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🐾 Pet Care (run, pup, piku)</div>
-                                <div class="config-item-desc">Sends virtual pet training commands</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoRPPEnabled" onchange="toggleConfig('autoRPPEnabled', this.checked, 'Pet Care (RPP)')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 5. Auto Pray -->
-                        <div class="config-item-card" data-cat="farming">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🙏 Auto Pray / Curse</div>
-                                <div class="config-item-desc">Automates daily pray and curse targets</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoPrayEnabled" onchange="toggleConfig('autoPrayEnabled', this.checked, 'Auto Pray/Curse')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 6. Auto Gem Mode -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">💎 Auto Gem Usage</div>
-                                <div class="config-item-desc">Select automatic gem equipping mode</div>
-                            </div>
-                            <div class="segmented-group">
-                                <button class="segment-btn" id="gemBtn_0" onclick="setGemMode(0)">Off (0)</button>
-                                <button class="segment-btn" id="gemBtn_1" onclick="setGemMode(1)">Up (1)</button>
-                                <button class="segment-btn" id="gemBtn_neg1" onclick="setGemMode(-1)">Down (-1)</button>
-                            </div>
-                        </div>
-
-                        <!-- 7. Special Star Gems -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">⭐ Special Star Gems</div>
-                                <div class="config-item-desc">Auto-uses mythical/fabled star gems</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_useSpecialGem" onchange="toggleConfig('useSpecialGem', this.checked, 'Special Star Gems')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 8. Auto Lootbox (all) -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">📦 Auto Lootbox (all)</div>
-                                <div class="config-item-desc">Opens normal lootboxes (lb all) when held</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoLootbox" onchange="toggleConfig('autoLootbox', this.checked, 'Auto Lootbox')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 9. Auto Fabled Lootbox -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🎁 Auto Fabled Lootbox</div>
-                                <div class="config-item-desc">Opens fabled lootboxes (lb fabled)</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoFabledLootbox" onchange="toggleConfig('autoFabledLootbox', this.checked, 'Fabled Lootbox')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 10. Auto Daily -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">📅 Auto Daily</div>
-                                <div class="config-item-desc">Claims daily cowoncy reward at midnight</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoDaily" onchange="toggleConfig('autoDaily', this.checked, 'Auto Daily')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 11. Auto Sell -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">💰 Auto Sell Animals</div>
-                                <div class="config-item-desc">Sells common animals if cowoncy is empty</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoSell" onchange="toggleConfig('autoSell', this.checked, 'Auto Sell')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 12. Auto Cookie -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🍪 Auto Send Cookie</div>
-                                <div class="config-item-desc">Sends daily cookie to your admin ID</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoCookie" onchange="toggleConfig('autoCookie', this.checked, 'Auto Cookie')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 13. Auto Clover -->
-                        <div class="config-item-card" data-cat="economy">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🍀 Auto Send Clover</div>
-                                <div class="config-item-desc">Sends lucky clover to your admin ID</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoClover" onchange="toggleConfig('autoClover', this.checked, 'Auto Clover')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 14. Auto Sleep -->
-                        <div class="config-item-card" data-cat="safety">
-                            <div class="config-item-info">
-                                <div class="config-item-title">💤 Auto Sleep Mode</div>
-                                <div class="config-item-desc">Natural 5-20m rest gaps to evade ban analysis</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoSleep" onchange="toggleConfig('autoSleep', this.checked, 'Auto Sleep Mode')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 15. Auto Huntbot -->
-                        <div class="config-item-card" data-cat="safety">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🤖 HuntBot Automation</div>
-                                <div class="config-item-desc">Dispatches and recalls Huntbot 24h</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoHuntbot" onchange="toggleConfig('autoHuntbot', this.checked, 'Auto HuntBot')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 16. Huntbot Trait Selector -->
-                        <div class="config-item-card" data-cat="safety">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🎯 HuntBot Upgrade Trait</div>
-                                <div class="config-item-desc">Priority trait to upgrade on HuntBot</div>
-                            </div>
-                            <select id="cfg_autoTrait" class="select-dark" onchange="toggleConfig('autoTrait', this.value, 'HuntBot Trait')">
-                                <option value="efficiency">Efficiency</option>
-                                <option value="duration">Duration</option>
-                                <option value="cost">Cost</option>
-                                <option value="gain">Gain</option>
-                                <option value="experience">Experience</option>
-                                <option value="radar">Radar</option>
-                            </select>
-                        </div>
-
-                        <!-- 17. Auto Resume -->
-                        <div class="config-item-card" data-cat="safety">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🔄 Resume on Captcha Solve</div>
-                                <div class="config-item-desc">Auto-resumes farming after captcha clear</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoResume" onchange="toggleConfig('autoResume', this.checked, 'Auto Resume')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- 18. Auto Reload -->
-                        <div class="config-item-card" data-cat="safety">
-                            <div class="config-item-info">
-                                <div class="config-item-title">🔁 Daily Config Reload</div>
-                                <div class="config-item-desc">Re-syncs configuration daily at midnight</div>
-                            </div>
-                            <label class="switch-label">
-                                <input type="checkbox" id="cfg_autoReload" onchange="toggleConfig('autoReload', this.checked, 'Auto Reload')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- 7-Day Daily Performance Chart (col-span-12) -->
         <div class="double-bezel col-span-12 chart-card">
@@ -1995,6 +1893,283 @@
             </div>
         </footer>
     </div>
+
+    <!-- Configuration Modal Window (Pop-up Window) -->
+    <div id="configModalOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target===this) closeConfigModal()">
+        <div class="modal-container" id="configModal">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow-tag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        Automation Modules & User Config
+                    </span>
+                    <h2 class="modal-title">Live Configuration Matrix</h2>
+                    <div class="modal-subtext">Toggle features on the fly. Real-time memory injection & auto-persisted to <code class="mono-code">config.json</code>.</div>
+                </div>
+
+                <div class="modal-header-actions">
+                    <button class="modal-close-btn" id="btnCloseConfigModal" onclick="closeConfigModal()" title="Close configuration (Esc)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Sub-header (Tabs Filter) -->
+            <div class="modal-tabs-bar">
+                <div class="config-tabs-cluster">
+                    <button class="config-tab-btn active" data-tab="all">All Modules</button>
+                    <button class="config-tab-btn" data-tab="farming">🏹 Farming & Combat</button>
+                    <button class="config-tab-btn" data-tab="economy">💎 Economy & Items</button>
+                    <button class="config-tab-btn" data-tab="safety">🛡️ Safety & System</button>
+                </div>
+            </div>
+
+            <!-- Modal Body (Scrollable Config Grid) -->
+            <div class="modal-body">
+                <div class="config-grid" id="configGrid">
+                    <!-- 1. Auto Hunt -->
+                    <div class="config-item-card" data-cat="farming">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🏹 Auto Hunt</div>
+                            <div class="config-item-desc">Dispatches owo hunt on cooldown</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoHunt" onchange="toggleConfig('autoHunt', this.checked, 'Auto Hunt')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 2. Auto Battle -->
+                    <div class="config-item-card" data-cat="farming">
+                        <div class="config-item-info">
+                            <div class="config-item-title">⚔️ Auto Battle</div>
+                            <div class="config-item-desc">Dispatches owo battle on cooldown</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoBattle" onchange="toggleConfig('autoBattle', this.checked, 'Auto Battle')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 3. Auto Quote / OwO -->
+                    <div class="config-item-card" data-cat="farming">
+                        <div class="config-item-info">
+                            <div class="config-item-title">💬 Auto OwO / Quotes</div>
+                            <div class="config-item-desc">Sends chat pulses to level up and keep active</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoQuoteEnabled" onchange="toggleConfig('autoQuoteEnabled', this.checked, 'Auto OwO/Quotes')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 4. Auto RPP -->
+                    <div class="config-item-card" data-cat="farming">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🐾 Pet Care (run, pup, piku)</div>
+                            <div class="config-item-desc">Sends virtual pet training commands</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoRPPEnabled" onchange="toggleConfig('autoRPPEnabled', this.checked, 'Pet Care (RPP)')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 5. Auto Pray -->
+                    <div class="config-item-card" data-cat="farming">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🙏 Auto Pray / Curse</div>
+                            <div class="config-item-desc">Automates daily pray and curse targets</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoPrayEnabled" onchange="toggleConfig('autoPrayEnabled', this.checked, 'Auto Pray/Curse')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 6. Auto Gem Mode -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">💎 Auto Gem Usage</div>
+                            <div class="config-item-desc">Select automatic gem equipping mode</div>
+                        </div>
+                        <div class="segmented-group">
+                            <button class="segment-btn" id="gemBtn_0" onclick="setGemMode(0)">Off (0)</button>
+                            <button class="segment-btn" id="gemBtn_1" onclick="setGemMode(1)">Up (1)</button>
+                            <button class="segment-btn" id="gemBtn_neg1" onclick="setGemMode(-1)">Down (-1)</button>
+                        </div>
+                    </div>
+
+                    <!-- 7. Special Star Gems -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">⭐ Special Star Gems</div>
+                            <div class="config-item-desc">Auto-uses mythical/fabled star gems</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_useSpecialGem" onchange="toggleConfig('useSpecialGem', this.checked, 'Special Star Gems')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 8. Auto Lootbox (all) -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">📦 Auto Lootbox (all)</div>
+                            <div class="config-item-desc">Opens normal lootboxes (lb all) when held</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoLootbox" onchange="toggleConfig('autoLootbox', this.checked, 'Auto Lootbox')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 9. Auto Fabled Lootbox -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🎁 Auto Fabled Lootbox</div>
+                            <div class="config-item-desc">Opens fabled lootboxes (lb fabled)</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoFabledLootbox" onchange="toggleConfig('autoFabledLootbox', this.checked, 'Fabled Lootbox')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 10. Auto Daily -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">📅 Auto Daily</div>
+                            <div class="config-item-desc">Claims daily cowoncy reward at midnight</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoDaily" onchange="toggleConfig('autoDaily', this.checked, 'Auto Daily')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 11. Auto Sell -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">💰 Auto Sell Animals</div>
+                            <div class="config-item-desc">Sells common animals if cowoncy is empty</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoSell" onchange="toggleConfig('autoSell', this.checked, 'Auto Sell')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 12. Auto Cookie -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🍪 Auto Send Cookie</div>
+                            <div class="config-item-desc">Sends daily cookie to your admin ID</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoCookie" onchange="toggleConfig('autoCookie', this.checked, 'Auto Cookie')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 13. Auto Clover -->
+                    <div class="config-item-card" data-cat="economy">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🍀 Auto Send Clover</div>
+                            <div class="config-item-desc">Sends lucky clover to your admin ID</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoClover" onchange="toggleConfig('autoClover', this.checked, 'Auto Clover')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 14. Auto Sleep -->
+                    <div class="config-item-card" data-cat="safety">
+                        <div class="config-item-info">
+                            <div class="config-item-title">💤 Auto Sleep Mode</div>
+                            <div class="config-item-desc">Natural 5-20m rest gaps to evade ban analysis</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoSleep" onchange="toggleConfig('autoSleep', this.checked, 'Auto Sleep Mode')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 15. Auto Huntbot -->
+                    <div class="config-item-card" data-cat="safety">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🤖 HuntBot Automation</div>
+                            <div class="config-item-desc">Dispatches and recalls Huntbot 24h</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoHuntbot" onchange="toggleConfig('autoHuntbot', this.checked, 'Auto HuntBot')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 16. Huntbot Trait Selector -->
+                    <div class="config-item-card" data-cat="safety">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🎯 HuntBot Upgrade Trait</div>
+                            <div class="config-item-desc">Priority trait to upgrade on HuntBot</div>
+                        </div>
+                        <select id="cfg_autoTrait" class="select-dark" onchange="toggleConfig('autoTrait', this.value, 'HuntBot Trait')">
+                            <option value="efficiency">Efficiency</option>
+                            <option value="duration">Duration</option>
+                            <option value="cost">Cost</option>
+                            <option value="gain">Gain</option>
+                            <option value="experience">Experience</option>
+                            <option value="radar">Radar</option>
+                        </select>
+                    </div>
+
+                    <!-- 17. Auto Resume -->
+                    <div class="config-item-card" data-cat="safety">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🔄 Resume on Captcha Solve</div>
+                            <div class="config-item-desc">Auto-resumes farming after captcha clear</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoResume" onchange="toggleConfig('autoResume', this.checked, 'Auto Resume')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 18. Auto Reload -->
+                    <div class="config-item-card" data-cat="safety">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🔁 Daily Config Reload</div>
+                            <div class="config-item-desc">Re-syncs configuration daily at midnight</div>
+                        </div>
+                        <label class="switch-label">
+                            <input type="checkbox" id="cfg_autoReload" onchange="toggleConfig('autoReload', this.checked, 'Auto Reload')">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <div class="modal-footer-status">
+                    <span class="status-dot-green"></span>
+                    <span>Live memory sync • Auto-persisted to config.json</span>
+                </div>
+                <button class="control-btn" id="btnDoneConfigModal" onclick="closeConfigModal()" style="padding: 6px 18px;">
+                    <span>Done</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="toastNotice" class="toast-notice">✓ Settings updated</div>
 
     <script>
         let chartMode = 'balance'; // 'balance' or 'actions'
@@ -2707,42 +2882,72 @@
             await toggleConfig('autoGem', val, `Auto Gem set to ${modes[val]}`);
         }
 
-        // Category Tab Filtering
-        document.querySelectorAll('.config-tab-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.config-tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const targetTab = btn.getAttribute('data-tab');
-
-                document.querySelectorAll('.config-item-card').forEach(card => {
-                    const cat = card.getAttribute('data-cat');
-                    if (targetTab === 'all' || cat === targetTab) {
-                        card.style.display = 'flex';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            };
-        });
-
-        // Smooth scroll to config from navbar
-        const btnConfigScroll = document.getElementById('btnConfigScroll');
-        if (btnConfigScroll) {
-            btnConfigScroll.onclick = () => {
-                const section = document.getElementById('configSection');
-                if (section) {
-                    section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    section.classList.remove('glow-pulse');
-                    void section.offsetWidth; // trigger reflow
-                    section.classList.add('glow-pulse');
-                }
-            };
+        // Pop-up Modal Open / Close Logic
+        function openConfigModal() {
+            const overlay = document.getElementById('configModalOverlay');
+            if (!overlay) return;
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => {
+                overlay.classList.add('open');
+            });
+            fetchConfig();
         }
 
+        function closeConfigModal() {
+            const overlay = document.getElementById('configModalOverlay');
+            if (!overlay) return;
+            overlay.classList.remove('open');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 250);
+        }
+
+        function initConfigModal() {
+            const btnOpen = document.getElementById('btnConfigScroll');
+            const btnClose = document.getElementById('btnCloseConfigModal');
+            const btnDone = document.getElementById('btnDoneConfigModal');
+            const overlay = document.getElementById('configModalOverlay');
+
+            if (btnOpen) btnOpen.onclick = openConfigModal;
+            if (btnClose) btnClose.onclick = closeConfigModal;
+            if (btnDone) btnDone.onclick = closeConfigModal;
+
+            if (overlay) {
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) closeConfigModal();
+                };
+            }
+
+            // Category Tab Filtering
+            document.querySelectorAll('.config-tab-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.config-tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const targetTab = btn.getAttribute('data-tab');
+
+                    document.querySelectorAll('.config-item-card').forEach(card => {
+                        const cat = card.getAttribute('data-cat');
+                        if (targetTab === 'all' || cat === targetTab) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                };
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const overlay = document.getElementById('configModalOverlay');
+            if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+                closeConfigModal();
+            }
+        });
+
+        initConfigModal();
         fetchConfig();
         connectSSE();
     </script>
-    <div id="toastNotice" class="toast-notice">✓ Settings updated</div>
 </body>
 
 </html>
