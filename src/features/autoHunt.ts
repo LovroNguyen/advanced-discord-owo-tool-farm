@@ -105,7 +105,7 @@ const useGems = async (params: FeatureFnParams, huntMsg: Message) => {
 export default Schematic.registerFeature({
     name: "autoHunt",
     cooldown: () => ranInt(15_000, 22_000),
-    condition: async () => true,
+    condition: async ({ agent }) => agent.config.autoHunt !== false,
     run: async ({ agent, t, locale }) => {
         agent.metricsTracker.isAwaitingAutoHunt = true;
         let huntMsg;

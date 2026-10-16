@@ -4,7 +4,7 @@ import { ranInt } from "@/utils/math.js";
 export default Schematic.registerFeature({
     name: "autoBattle",
     cooldown: () => ranInt(15_000, 22_000),
-    condition: () => true,
+    condition: ({ agent }) => agent.config.autoBattle !== false,
     run: async ({ agent }) => {
         agent.metricsTracker.isAwaitingAutoBattle = true;
         let battleMsg;

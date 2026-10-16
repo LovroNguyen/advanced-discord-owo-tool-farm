@@ -8,6 +8,7 @@ export default Schematic.registerFeature({
     name: "autoPray",
     cooldown: () => ranInt(5 * 60 * 1000, 8 * 60 * 1000),
     condition: async ({ agent: { config } }) => {
+        if (config.autoPrayEnabled === false) return false;
         if (!config.autoPray || config.autoPray.length <= 0) return false;
 
         return true;

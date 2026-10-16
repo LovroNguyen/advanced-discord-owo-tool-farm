@@ -6,6 +6,7 @@ export default Schematic.registerFeature({
     name: "autoQuote",
     cooldown: () => 15_000,
     condition: async ({ agent }) => {
+        if (agent.config.autoQuoteEnabled === false) return false;
         return agent.config.autoQuote.length > 0;
     },
     run: async ({ agent }) => {

@@ -108,7 +108,7 @@ export default Schematic.registerEvent({
                     }
                 }
                 if (summaryParts.length > 0) {
-                    logger.data(`🐾 Animal Catch: ${summaryParts.join(", ")}`);
+                    logger.debug(`🐾 Animal Catch: ${summaryParts.join(", ")}`);
                 }
             }
         }

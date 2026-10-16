@@ -6,6 +6,7 @@ export default Schematic.registerFeature({
     name: "autoRPP",
     cooldown: () => ranInt(60, 120) * 1000,
     condition: async ({ agent: { config } }) => {
+        if (config.autoRPPEnabled === false) return false;
         if (!config.autoRPP || config.autoRPP.length <= 0) return false;
 
         return true;

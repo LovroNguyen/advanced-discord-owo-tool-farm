@@ -72,6 +72,11 @@ export const ConfigSchema = z.object({
     showRPC: z.boolean().default(true),
     enableDashboard: z.boolean().default(true).optional(),
     dashboardPort: z.number().default(4040).optional(),
+    autoHunt: z.boolean().default(true).optional(),
+    autoBattle: z.boolean().default(true).optional(),
+    autoPrayEnabled: z.boolean().default(true).optional(),
+    autoQuoteEnabled: z.boolean().default(true).optional(),
+    autoRPPEnabled: z.boolean().default(true).optional(),
 }).check(({ issues, value }) => {
     if (value.wayNotify.includes("webhook") && !value.webhookURL) {
         issues.push({

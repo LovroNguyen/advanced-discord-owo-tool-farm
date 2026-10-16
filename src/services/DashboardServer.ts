@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { MetricsTracker, MetricsSnapshot } from "@/structure/core/MetricsTracker.js";
 import { logger } from "@/utils/logger.js";
+import { Configuration } from "@/schemas/ConfigSchema.js";
 
 export interface DashboardAgentController {
     pause: () => void;
@@ -11,6 +12,8 @@ export interface DashboardAgentController {
     stop: () => Promise<void> | void;
     checkCash: () => Promise<void>;
     farmLoopPaused: boolean;
+    getConfig?: () => Configuration;
+    updateConfig?: (updates: Partial<Configuration>) => boolean;
 }
 
 export class DashboardServer {
@@ -124,6 +127,57 @@ export class DashboardServer {
                     res.writeHead(400, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ success: false, error: `Unknown action: ${action}` }));
                     return;
+                }
+
+                // Configuration Endpoints (User Config Adjustments)
+                if (url === "/api/config") {
+                    if (req.method === "GET") {
+                        if (this.agent?.getConfig) {
+                            const fullConfig = this.agent.getConfig();
+                            const safeConfig = {
+                                ...fullConfig,
+                                token: fullConfig.token ? "••••••••" : "",
+                                apiKey: fullConfig.apiKey ? "••••••••" : "",
+                            };
+                            res.writeHead(200, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ success: true, config: safeConfig }));
+                        } else {
+                            res.writeHead(503, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ success: false, error: "Agent not connected" }));
+                        }
+                        return;
+                    }
+
+                    if (req.method === "POST") {
+                        let body = "";
+                        req.on("data", chunk => body += chunk);
+                        req.on("end", () => {
+                            try {
+                                const updates = JSON.parse(body || "{}");
+                                delete updates.token;
+                                delete updates.apiKey;
+
+                                if (this.agent?.updateConfig) {
+                                    const ok = this.agent.updateConfig(updates);
+                                    const updatedConfig = this.agent.getConfig ? this.agent.getConfig() : updates;
+                                    const safeConfig = {
+                                        ...updatedConfig,
+                                        token: updatedConfig.token ? "••••••••" : "",
+                                        apiKey: updatedConfig.apiKey ? "••••••••" : "",
+                                    };
+                                    res.writeHead(200, { "Content-Type": "application/json" });
+                                    res.end(JSON.stringify({ success: ok, config: safeConfig }));
+                                } else {
+                                    res.writeHead(503, { "Content-Type": "application/json" });
+                                    res.end(JSON.stringify({ success: false, error: "Agent controller not available" }));
+                                }
+                            } catch (e: any) {
+                                res.writeHead(400, { "Content-Type": "application/json" });
+                                res.end(JSON.stringify({ success: false, error: e.message }));
+                            }
+                        });
+                        return;
+                    }
                 }
 
                 // 1. Live SSE Stream endpoint

@@ -190,6 +190,12 @@ The tool comes equipped with a modern, high-end Web Dashboard operating via loca
   - **Pause / Resume**: Freeze and unfreeze farming loops on demand.
   - **Stop**: Safely shut down the selfbot from the browser.
   - **Sync Cash**: Prompt OwO for the latest balance.
+- **⚙️ Live User Configuration & Feature Toggles**:
+  - Full in-browser control matrix to toggle modules on and off with instant live sync:
+    * **🏹 Farming & Combat**: Auto Hunt, Auto Battle, Auto OwO/Quotes, Pet Care (RPP: run, pup, piku), Auto Pray / Curse.
+    * **💎 Economy & Items**: Auto Gem Mode (Disabled [0], Upgrade [1], Downgrade [-1]), Special Star Gems, Auto Lootbox, Auto Fabled Lootbox, Auto Daily, Auto Sell Animals, Auto Cookie, Auto Clover.
+    * **🛡️ Safety & System**: Auto Sleep Mode, HuntBot Automation, HuntBot Trait selector (efficiency, duration, cost, etc.), Resume on Captcha Solve, Daily Config Reload.
+  - Changes persist immediately to active memory and automatically write back to `config.json`.
 - **📜 Live Log Console**: Color-coded, streaming event feed with instant error and captcha alerts.
 
 ## Configuration Guide

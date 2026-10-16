@@ -1,6 +1,7 @@
 import { ClientEvents, Collection, GuildTextBasedChannel, Message, RichPresence } from "discord.js-selfbot-v13";
 
 import path from "node:path";
+import fs from "node:fs";
 
 import { ranInt } from "@/utils/math.js";
 import { logger } from "@/utils/logger.js";
@@ -460,6 +461,38 @@ export class BaseAgent {
             );
         } catch (error) {
             logger.warn(`Failed to start dashboard server: ${error}`);
+        }
+    }
+
+    public getConfig = (): Configuration => {
+        return { ...this.config };
+    }
+
+    public updateConfig = (updates: Partial<Configuration>): boolean => {
+        try {
+            for (const [key, val] of Object.entries(updates)) {
+                (this.config as any)[key] = val;
+            }
+
+            // Sync with active config.json on disk if present
+            const configPath = path.resolve(process.cwd(), "config.json");
+            if (fs.existsSync(configPath)) {
+                try {
+                    const existingRaw = fs.readFileSync(configPath, "utf-8");
+                    const existingJson = JSON.parse(existingRaw);
+                    const merged = { ...existingJson, ...updates };
+                    fs.writeFileSync(configPath, JSON.stringify(merged, null, 4), "utf-8");
+                    logger.debug("Persisted updated configuration to config.json");
+                } catch (err) {
+                    logger.warn(`Could not persist to config.json: ${err}`);
+                }
+            }
+
+            logger.info(`⚙️ User configuration updated: ${Object.keys(updates).join(", ")}`);
+            return true;
+        } catch (e: any) {
+            logger.error(`Failed to update config: ${e.message}`);
+            return false;
         }
     }
 }
