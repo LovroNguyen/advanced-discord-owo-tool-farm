@@ -2,6 +2,7 @@ import { ClientEvents, Collection, GuildTextBasedChannel, Message, RichPresence 
 
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 
 import { ranInt } from "@/utils/math.js";
 import { logger } from "@/utils/logger.js";
@@ -131,6 +132,21 @@ export class BaseAgent {
     }
 
     public reloadConfig = () => {
+        try {
+            const dataPath = path.join(os.homedir(), "b2ki-ados", "data.json");
+            if (fs.existsSync(dataPath)) {
+                const allData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+                const userId = this.client?.user?.id || Object.keys(allData)[0];
+                if (userId && allData[userId]) {
+                    Object.assign(this.config, allData[userId]);
+                    this.cache = { ...this.config };
+                    logger.info(t("agent.messages.configReloaded"));
+                    return;
+                }
+            }
+        } catch (err) {
+            logger.warn(`Could not reload from data.json: ${err}`);
+        }
         for (const key of Object.keys(this.cache)) {
             (this.config as any)[key as keyof Configuration] = this.cache[key as keyof Configuration];
         }
@@ -465,6 +481,21 @@ export class BaseAgent {
     }
 
     public getConfig = (): Configuration => {
+        try {
+            const dataPath = path.join(os.homedir(), "b2ki-ados", "data.json");
+            if (fs.existsSync(dataPath)) {
+                const raw = fs.readFileSync(dataPath, "utf-8");
+                const allData = JSON.parse(raw);
+                const userId = this.client?.user?.id || Object.keys(allData)[0];
+                if (userId && allData[userId]) {
+                    const savedConfig = allData[userId];
+                    Object.assign(this.config, savedConfig);
+                    return { ...this.config };
+                }
+            }
+        } catch (err) {
+            logger.warn(`Could not read config from data.json: ${err}`);
+        }
         return { ...this.config };
     }
 
@@ -474,21 +505,30 @@ export class BaseAgent {
                 (this.config as any)[key] = val;
             }
 
-            // Sync with active config.json on disk if present
-            const configPath = path.resolve(process.cwd(), "config.json");
-            if (fs.existsSync(configPath)) {
-                try {
-                    const existingRaw = fs.readFileSync(configPath, "utf-8");
-                    const existingJson = JSON.parse(existingRaw);
-                    const merged = { ...existingJson, ...updates };
-                    fs.writeFileSync(configPath, JSON.stringify(merged, null, 4), "utf-8");
-                    logger.debug("Persisted updated configuration to config.json");
-                } catch (err) {
-                    logger.warn(`Could not persist to config.json: ${err}`);
+            // Sync with data.json on disk: C:\Users\<user>\b2ki-ados\data.json
+            const dataPath = path.join(os.homedir(), "b2ki-ados", "data.json");
+            try {
+                const dir = path.dirname(dataPath);
+                if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+                let allData: Record<string, any> = {};
+                if (fs.existsSync(dataPath)) {
+                    try {
+                        allData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+                    } catch {
+                        allData = {};
+                    }
                 }
+
+                const userId = this.client?.user?.id || Object.keys(allData)[0] || "default";
+                allData[userId] = { ...(allData[userId] || {}), ...this.config, ...updates };
+                fs.writeFileSync(dataPath, JSON.stringify(allData, null, 2), "utf-8");
+                logger.debug(`Persisted updated configuration to ${dataPath} for user ${userId}`);
+            } catch (err) {
+                logger.warn(`Could not persist to data.json: ${err}`);
             }
 
-            logger.info(`⚙️ User configuration updated: ${Object.keys(updates).join(", ")}`);
+            logger.info(`⚙️ User configuration updated in data.json: ${Object.keys(updates).join(", ")}`);
             return true;
         } catch (e: any) {
             logger.error(`Failed to update config: ${e.message}`);

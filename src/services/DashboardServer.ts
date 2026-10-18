@@ -1,6 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 import { MetricsTracker, MetricsSnapshot } from "@/structure/core/MetricsTracker.js";
 import { logger } from "@/utils/logger.js";
@@ -129,22 +130,33 @@ export class DashboardServer {
                     return;
                 }
 
-                // Configuration Endpoints (User Config Adjustments)
+                // Configuration Endpoints (User Config Adjustments from data.json)
                 if (url === "/api/config") {
                     if (req.method === "GET") {
+                        let fullConfig: any = {};
                         if (this.agent?.getConfig) {
-                            const fullConfig = this.agent.getConfig();
-                            const safeConfig = {
-                                ...fullConfig,
-                                token: fullConfig.token ? "••••••••" : "",
-                                apiKey: fullConfig.apiKey ? "••••••••" : "",
-                            };
-                            res.writeHead(200, { "Content-Type": "application/json" });
-                            res.end(JSON.stringify({ success: true, config: safeConfig }));
+                            fullConfig = this.agent.getConfig();
                         } else {
-                            res.writeHead(503, { "Content-Type": "application/json" });
-                            res.end(JSON.stringify({ success: false, error: "Agent not connected" }));
+                            try {
+                                const dataPath = path.join(os.homedir(), "b2ki-ados", "data.json");
+                                if (fs.existsSync(dataPath)) {
+                                    const allData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+                                    const userId = Object.keys(allData)[0];
+                                    if (userId && allData[userId]) {
+                                        fullConfig = allData[userId];
+                                    }
+                                }
+                            } catch (e) {
+                                logger.warn(`Failed reading data.json in dashboard fallback: ${e}`);
+                            }
                         }
+                        const safeConfig = {
+                            ...fullConfig,
+                            token: fullConfig.token ? "••••••••" : "",
+                            apiKey: fullConfig.apiKey ? "••••••••" : "",
+                        };
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ success: true, config: safeConfig }));
                         return;
                     }
 
@@ -157,20 +169,33 @@ export class DashboardServer {
                                 delete updates.token;
                                 delete updates.apiKey;
 
+                                let ok = true;
                                 if (this.agent?.updateConfig) {
-                                    const ok = this.agent.updateConfig(updates);
-                                    const updatedConfig = this.agent.getConfig ? this.agent.getConfig() : updates;
-                                    const safeConfig = {
-                                        ...updatedConfig,
-                                        token: updatedConfig.token ? "••••••••" : "",
-                                        apiKey: updatedConfig.apiKey ? "••••••••" : "",
-                                    };
-                                    res.writeHead(200, { "Content-Type": "application/json" });
-                                    res.end(JSON.stringify({ success: ok, config: safeConfig }));
+                                    ok = this.agent.updateConfig(updates);
                                 } else {
-                                    res.writeHead(503, { "Content-Type": "application/json" });
-                                    res.end(JSON.stringify({ success: false, error: "Agent controller not available" }));
+                                    try {
+                                        const dataPath = path.join(os.homedir(), "b2ki-ados", "data.json");
+                                        let allData: any = {};
+                                        if (fs.existsSync(dataPath)) {
+                                            allData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+                                        }
+                                        const userId = Object.keys(allData)[0] || "default";
+                                        allData[userId] = { ...(allData[userId] || {}), ...updates };
+                                        fs.writeFileSync(dataPath, JSON.stringify(allData, null, 2), "utf-8");
+                                    } catch (err) {
+                                        ok = false;
+                                        logger.warn(`Failed writing to data.json: ${err}`);
+                                    }
                                 }
+
+                                const updatedConfig = this.agent?.getConfig ? this.agent.getConfig() : updates;
+                                const safeConfig = {
+                                    ...updatedConfig,
+                                    token: updatedConfig.token ? "••••••••" : "",
+                                    apiKey: updatedConfig.apiKey ? "••••••••" : "",
+                                };
+                                res.writeHead(200, { "Content-Type": "application/json" });
+                                res.end(JSON.stringify({ success: ok, config: safeConfig }));
                             } catch (e: any) {
                                 res.writeHead(400, { "Content-Type": "application/json" });
                                 res.end(JSON.stringify({ success: false, error: e.message }));
