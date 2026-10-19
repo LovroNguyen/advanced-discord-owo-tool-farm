@@ -27,16 +27,14 @@ export class NotificationService {
         const notificationPromises = enabledNotifiers.map(async notifierName => {
             const strategy = this.strategies.get(notifierName);
             if (strategy) {
-                // Wrap in a promise to catch any synchronous errors in execute
                 try {
-                    return await Promise.resolve(strategy.execute(params, payload));
+                    await Promise.resolve(strategy.execute(params, payload));
                 } catch (err) {
-                    logger.error(`Unhandled error in ${notifierName} notifier:`);
-                    logger.error(err as Error);
+                    logger.error(`Error executing ${notifierName} notifier: ${err instanceof Error ? err.message : String(err)}`);
                 }
+            } else {
+                logger.warn(`Unknown notifier specified in config: ${notifierName}`);
             }
-            logger.warn(`Unknown notifier specified in config: ${notifierName}`);
-            return Promise.resolve();
         });
 
         await Promise.all(notificationPromises);

@@ -25,18 +25,25 @@ export class CallNotifier implements NotifierStrategy {
                 selfDeaf: false,
                 selfMute: true,
                 selfVideo: false,
-            })
+            });
             logger.debug(`Joined voice channel with status: ${connection.status}`);
             await dms.ring();
 
             setTimeout(() => {
-                connection.disconnect();
-                logger.debug("Disconnected from voice channel after 60 seconds.");
+                try {
+                    connection.disconnect();
+                    logger.debug("Disconnected from voice channel after 60 seconds.");
+                } catch {
+                    // Ignore disconnect errors
+                }
             }, 60_000);
-        } catch (error) {
-            logger.error(`Error in CallNotifier: ${error instanceof Error ? error.message : String(error)}`);
-            logger.error(error instanceof Error ? error.stack || "No stack trace available" : "Unknown error occurred during Call Notifier execution.");
-            return Promise.reject(error);
+        } catch (error: any) {
+            const msg = error instanceof Error ? error.message : String(error);
+            if (msg.includes("Connection not established") || error?.code === "VOICE_CONNECTION_TIMEOUT") {
+                logger.warn(`CallNotifier: Discord voice call connection timed out after 15s. (Discord WebRTC/Voice gateway issue or admin call privacy settings).`);
+            } else {
+                logger.error(`Error in CallNotifier: ${msg}`);
+            }
         }
     }
 }
