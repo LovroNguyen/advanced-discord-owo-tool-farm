@@ -15,6 +15,7 @@ export interface DashboardAgentController {
     farmLoopPaused: boolean;
     getConfig?: () => Configuration;
     updateConfig?: (updates: Partial<Configuration>) => boolean;
+    skipSleep?: () => boolean;
 }
 
 export class DashboardServer {
@@ -101,6 +102,18 @@ export class DashboardServer {
                             this.agent.checkCash().catch(err => logger.error(`Check cash error: ${err}`));
                             res.writeHead(200, { "Content-Type": "application/json" });
                             res.end(JSON.stringify({ success: true, message: "Cash sync triggered" }));
+                        } else {
+                            res.writeHead(503, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ success: false, error: "Agent not connected" }));
+                        }
+                        return;
+                    }
+
+                    if (action === "skip_sleep") {
+                        if (this.agent) {
+                            const skipped = this.agent.skipSleep ? this.agent.skipSleep() : false;
+                            res.writeHead(200, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ success: true, skipped }));
                         } else {
                             res.writeHead(503, { "Content-Type": "application/json" });
                             res.end(JSON.stringify({ success: false, error: "Agent not connected" }));

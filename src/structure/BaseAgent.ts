@@ -415,10 +415,52 @@ export class BaseAgent {
         }
     }
 
+    public sleepAbortResolver: (() => void) | null = null;
+    public sleepTimer: NodeJS.Timeout | null = null;
+
+    public startSleepPeriod = async (sleepTime: number, nextThreshold: number): Promise<boolean> => {
+        this.metricsTracker.startSleep(sleepTime, nextThreshold);
+        return new Promise<boolean>((resolve) => {
+            this.sleepAbortResolver = () => {
+                resolve(true); // true = skipped early
+            };
+            this.sleepTimer = setTimeout(() => {
+                this.sleepAbortResolver = null;
+                this.sleepTimer = null;
+                resolve(false); // false = naturally completed
+            }, sleepTime);
+        });
+    }
+
+    public skipSleep = (): boolean => {
+        if (this.metricsTracker.getSnapshot().sleep.isSleeping && this.sleepAbortResolver) {
+            logger.info("⚡ Sleep mode skipped manually by user via Dashboard.");
+            if (this.sleepTimer) {
+                clearTimeout(this.sleepTimer);
+                this.sleepTimer = null;
+            }
+            const resolver = this.sleepAbortResolver;
+            this.sleepAbortResolver = null;
+            this.metricsTracker.endSleep(this.autoSleepThreshold);
+            resolver();
+            return true;
+        }
+        return false;
+    }
+
     public stop = async () => {
         this.farmLoopPaused = true;
         this.metricsTracker.setStatus("stopped");
         logger.info("🛑 Selfbot stopping via dashboard remote control...");
+        if (this.sleepTimer) {
+            clearTimeout(this.sleepTimer);
+            this.sleepTimer = null;
+        }
+        if (this.sleepAbortResolver) {
+            const resolver = this.sleepAbortResolver;
+            this.sleepAbortResolver = null;
+            resolver();
+        }
         this.metricsTracker.flushToDisk();
         setTimeout(async () => {
             try {

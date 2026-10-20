@@ -35,13 +35,14 @@ export default Schematic.registerFeature({
             ))
         }));
 
-        // Broadcast sleep state to dashboard
-        agent.metricsTracker.startSleep(sleepTime, nextThreshold);
-
-        await agent.client.sleep(sleepTime);
-
-        // Resume online state after waking up
-        agent.metricsTracker.endSleep(nextThreshold);
+        // Broadcast sleep state to dashboard and enter cancellable sleep
+        const skipped = await agent.startSleepPeriod(sleepTime, nextThreshold);
+        if (skipped) {
+            logger.info("⚡ Bot woken up early from sleep mode! Resuming operations immediately...");
+        } else {
+            // Resume online state after waking up naturally
+            agent.metricsTracker.endSleep(nextThreshold);
+        }
 
         return;
     }

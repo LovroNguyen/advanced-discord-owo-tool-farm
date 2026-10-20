@@ -217,6 +217,60 @@
             color: #ef4444;
         }
 
+        .control-btn.btn-sleep-skip {
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #c4b5fd;
+            background: rgba(139, 92, 246, 0.12);
+            animation: sleepPulseBtn 2.5s ease-in-out infinite;
+        }
+
+        .control-btn.btn-sleep-skip:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: rgba(167, 139, 250, 0.8);
+            color: #f5f3ff;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.45);
+            transform: translateY(-1px);
+        }
+
+        @keyframes sleepPulseBtn {
+            0%, 100% {
+                box-shadow: 0 0 0 rgba(139, 92, 246, 0);
+                border-color: rgba(139, 92, 246, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
+                border-color: rgba(167, 139, 250, 0.7);
+            }
+        }
+
+        .mini-skip-btn {
+            background: rgba(139, 92, 246, 0.18);
+            border: 1px solid rgba(139, 92, 246, 0.45);
+            color: #ddd6fe;
+            border-radius: 6px;
+            font-size: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            padding: 2px 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        .mini-skip-btn:hover {
+            background: rgba(139, 92, 246, 0.35);
+            border-color: rgba(167, 139, 250, 0.8);
+            color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+        }
+
+        .mini-skip-btn:active {
+            transform: scale(0.96);
+        }
+
         .control-btn:disabled {
             opacity: 0.45;
             cursor: not-allowed;
@@ -1354,6 +1408,12 @@
                     </svg>
                     <span>Sync Cash</span>
                 </button>
+                <button class="control-btn btn-sleep-skip" id="btnSkipSleep" onclick="triggerSkipSleep()" title="Interrupt sleep timer and resume farming immediately" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>Skip Sleep</span>
+                </button>
                 <button class="control-btn" id="btnConfigScroll" onclick="openConfigModal()" title="Configure bot automation modules and user settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="3" />
@@ -1438,7 +1498,12 @@
 
                     <div class="sleep-row" id="sleepRow">
                         <span id="sleepStateLabel">Next Sleep:</span>
-                        <span id="sleepProgressText">0 / 0 cmds</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="sleepProgressText">0 / 0 cmds</span>
+                            <button class="mini-skip-btn" id="btnSkipSleepInline" onclick="triggerSkipSleep()" title="Skip sleep and resume farming right now" style="display: none;">
+                                ⚡ Skip
+                            </button>
+                        </div>
                     </div>
 
                     <div class="progress-rail" style="margin-top: 6px;">
@@ -2406,6 +2471,8 @@
             const sleepStateLabel = document.getElementById('sleepStateLabel');
             const sleepProgressText = document.getElementById('sleepProgressText');
             const sleepProgressFill = document.getElementById('sleepProgressFill');
+            const btnSkipSleep = document.getElementById('btnSkipSleep');
+            const btnSkipSleepInline = document.getElementById('btnSkipSleepInline');
             if (!sleep) return;
 
             if (!sleep.enabled) {
@@ -2413,6 +2480,8 @@
                 if (sleepStateLabel) sleepStateLabel.textContent = 'Sleep Mode:';
                 if (sleepProgressText) sleepProgressText.textContent = 'Disabled';
                 if (sleepProgressFill) sleepProgressFill.style.width = '0%';
+                if (btnSkipSleep) btnSkipSleep.style.display = 'none';
+                if (btnSkipSleepInline) btnSkipSleepInline.style.display = 'none';
                 return;
             }
 
@@ -2436,6 +2505,8 @@
                     sleepProgressFill.style.width = `${pct}%`;
                     sleepProgressFill.style.background = 'linear-gradient(90deg, #8B5CF6, #EC4899)';
                 }
+                if (btnSkipSleep) btnSkipSleep.style.display = 'inline-flex';
+                if (btnSkipSleepInline) btnSkipSleepInline.style.display = 'inline-flex';
             } else {
                 if (sleepPill) {
                     sleepPill.textContent = `💤 Sleep: in ~${sleep.commandsUntilSleep || 0} cmds`;
@@ -2453,6 +2524,37 @@
                     sleepProgressFill.style.width = `${pct}%`;
                     sleepProgressFill.style.background = 'linear-gradient(90deg, #8B5CF6, #A78BFA)';
                 }
+                if (btnSkipSleep) btnSkipSleep.style.display = 'none';
+                if (btnSkipSleepInline) btnSkipSleepInline.style.display = 'none';
+            }
+        }
+
+        async function triggerSkipSleep() {
+            const btnNav = document.getElementById('btnSkipSleep');
+            const btnInline = document.getElementById('btnSkipSleepInline');
+            if (btnNav) btnNav.disabled = true;
+            if (btnInline) btnInline.disabled = true;
+
+            try {
+                const res = await fetch('/api/action/skip_sleep', { method: 'POST' });
+                const json = await res.json();
+                if (json.success && json.skipped) {
+                    showToast('⚡ Sleep cycle skipped! Resuming farm loop...');
+                    if (btnNav) btnNav.style.display = 'none';
+                    if (btnInline) btnInline.style.display = 'none';
+                } else if (json.success && !json.skipped) {
+                    showToast('Bot is not currently sleeping.', true);
+                } else {
+                    showToast(json.error || 'Failed to skip sleep.', true);
+                }
+            } catch (err) {
+                console.error('Skip sleep request failed:', err);
+                showToast('Network error while requesting skip sleep.', true);
+            } finally {
+                setTimeout(() => {
+                    if (btnNav) btnNav.disabled = false;
+                    if (btnInline) btnInline.disabled = false;
+                }, 1000);
             }
         }
 
