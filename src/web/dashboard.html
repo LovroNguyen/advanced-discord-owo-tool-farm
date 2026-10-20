@@ -1629,8 +1629,7 @@
 
             <!-- Right: Event Quick Pill & Account -->
             <div class="nav-meta">
-                <div class="event-quick-pill" id="navEventChip" onclick="toggleEventMarquee()" title="Click to toggle Event Intelligence Banner / FAQ">
-                    <span class="event-emoji" id="navEventEmoji">🎃</span>
+                <div class="event-quick-pill" id="navEventChip" onclick="toggleEventMarquee()" title="Click to view Event Intelligence & FAQ">
                     <span class="event-name-short" id="navEventTitle">October Event</span>
                     <span class="event-time-badge" id="navEventTime">--:--</span>
                 </div>
@@ -1646,7 +1645,6 @@
         <div class="event-marquee-banner" id="eventIntelligenceBanner">
             <div class="event-banner-inner">
                 <div class="event-identity">
-                    <div class="event-icon-badge" id="eventIconBadge">🎃</div>
                     <div class="event-title-stack">
                         <div class="event-name-row">
                             <span class="event-title-main" id="eventBannerTitle">October Event FAQ</span>
@@ -2521,7 +2519,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                         OwO Event Intelligence
                     </span>
-                    <h2 class="modal-title" id="faqModalTitle">🎃 October Event FAQ</h2>
+                    <h2 class="modal-title" id="faqModalTitle">Event Announcement FAQ</h2>
                     <div class="modal-subtext" id="faqModalSubtext">Announcement feed synchronized from OwO Bot Support #announcements.</div>
                 </div>
                 <div class="modal-header-actions">
@@ -3182,25 +3180,13 @@
             const navChip = document.getElementById('navEventChip');
             const navTitle = document.getElementById('navEventTitle');
             const navTime = document.getElementById('navEventTime');
-            const navEmoji = document.getElementById('navEventEmoji');
-            const iconBadge = document.getElementById('eventIconBadge');
             const tagGems = document.getElementById('tagSpecialGems');
             const tagRates = document.getElementById('tagPetRates');
             const tagSource = document.getElementById('tagEventSource');
 
             const title = ev.eventName || 'OwO Seasonal Event';
             if (bannerTitle) bannerTitle.textContent = title;
-            if (navTitle) navTitle.textContent = title.length > 15 ? title.slice(0, 14) + '…' : title;
-
-            // Pick contextual emoji
-            let emoji = '🎃';
-            if (/easter/i.test(title)) emoji = '🥚';
-            else if (/christmas|xmas|winter/i.test(title)) emoji = '🎄';
-            else if (/valentine/i.test(title)) emoji = '💖';
-            else if (/summer/i.test(title)) emoji = '🏖️';
-            else if (/anniversary/i.test(title)) emoji = '🎉';
-            if (navEmoji) navEmoji.textContent = emoji;
-            if (iconBadge) iconBadge.textContent = emoji;
+            if (navTitle) navTitle.textContent = title.length > 18 ? title.slice(0, 17) + '…' : title;
 
             if (bannerSummary) {
                 bannerSummary.textContent = ev.summary || 'OwO Seasonal Event';
@@ -3272,7 +3258,7 @@
                 announcementSnippet: '👻👻 October Event FAQ 👻👻\n\nWhat are the holidays being celebrated?\nHalloween, World Coffee Day\nHow long is the event?\n• Event ending at 15-Oct-26 1:45 PM\nHow many pets are available?\n• Catch Rates: 0.005%-0.05%\nCan I use my Special Gems for this event?\nYes, you can use your special gems during the event!'
             };
 
-            document.getElementById('faqModalTitle').textContent = `🎃 ${ev.eventName || 'Event FAQ'}`;
+            document.getElementById('faqModalTitle').textContent = `${ev.eventName || 'Event'} — Announcement FAQ`;
             document.getElementById('faqModalEnding').textContent = ev.endingRaw || 'N/A';
             document.getElementById('faqModalGems').textContent = ev.specialGemsAllowed ? 'Yes, allowed during this event' : 'No / Not specified';
             document.getElementById('faqModalRates').textContent = ev.petRates || '0.005% - 0.05%';
