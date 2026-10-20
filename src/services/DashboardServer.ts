@@ -138,6 +138,26 @@ export class DashboardServer {
                         return;
                     }
 
+                    if (action === "set_event") {
+                        let body = "";
+                        req.on("data", chunk => body += chunk);
+                        req.on("end", () => {
+                            try {
+                                const json = JSON.parse(body || "{}");
+                                this.metricsTracker.setEventInfo({
+                                    ...json,
+                                    source: "manual",
+                                });
+                                res.writeHead(200, { "Content-Type": "application/json" });
+                                res.end(JSON.stringify({ success: true, event: this.metricsTracker.getSnapshot().event }));
+                            } catch (e: any) {
+                                res.writeHead(400, { "Content-Type": "application/json" });
+                                res.end(JSON.stringify({ success: false, error: e.message }));
+                            }
+                        });
+                        return;
+                    }
+
                     res.writeHead(400, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ success: false, error: `Unknown action: ${action}` }));
                     return;

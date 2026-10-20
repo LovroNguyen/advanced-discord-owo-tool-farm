@@ -97,12 +97,13 @@
 
         /* Floating Island Navbar */
         .island-nav {
-            margin: 0 auto 36px;
+            margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 14px 8px 20px;
-            background: rgba(18, 18, 22, 0.7);
+            padding: 8px 18px;
+            gap: 16px;
+            background: rgba(18, 18, 22, 0.75);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-hairline);
@@ -114,45 +115,94 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         .brand-badge {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: linear-gradient(135deg, #10B981, #064E3B);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 800;
             color: #050505;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .brand-title {
             font-size: 14px;
             font-weight: 700;
             letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--text-primary);
         }
 
-        .version-pill {
-            font-family: var(--font-mono);
+        .live-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             font-size: 10px;
-            padding: 2px 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 9px;
             border-radius: 9999px;
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-subtle);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-mint);
+            transition: all 0.25s var(--ease-fluid);
+        }
+
+        .live-status-pill.paused {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.35);
+            color: var(--accent-warn);
+        }
+
+        .live-status-pill.sleeping {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.45);
+            color: #DDD6FE;
+            animation: sleepPulseBtn 2.5s infinite;
+        }
+
+        .live-status-pill.stopped {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.45);
+            color: #EF4444;
+        }
+
+        .live-status-pill.captcha {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.6);
+            color: #EF4444;
+            animation: gentleSleepBlink 1s infinite;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 8px currentColor;
         }
 
         .nav-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 9999px;
         }
 
         .control-btn {
@@ -233,10 +283,13 @@
         }
 
         @keyframes sleepPulseBtn {
-            0%, 100% {
+
+            0%,
+            100% {
                 box-shadow: 0 0 0 rgba(139, 92, 246, 0);
                 border-color: rgba(139, 92, 246, 0.4);
             }
+
             50% {
                 box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
                 border-color: rgba(167, 139, 250, 0.7);
@@ -280,81 +333,223 @@
         .nav-meta {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            flex-shrink: 0;
         }
 
-        .event-pill {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            background: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            color: #fbbf24;
-            transition: all 0.3s var(--ease-fluid);
-        }
-
-        .event-pill:hover {
-            background: rgba(245, 158, 11, 0.14);
-            border-color: rgba(245, 158, 11, 0.45);
-            box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
-        }
-
-        .event-pill .event-icon {
-            font-size: 12px;
-            line-height: 1;
-        }
-
-        .event-pill .event-label {
-            font-family: var(--font-sans);
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(251, 191, 36, 0.85);
-            letter-spacing: 0.02em;
-        }
-
-        .event-pill .event-time {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            font-weight: 700;
-            color: #fef08a;
-            letter-spacing: -0.01em;
-        }
-
-        .pulse-status {
-            display: flex;
+        .event-quick-pill {
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             padding: 5px 12px;
             border-radius: 9999px;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            color: var(--accent-mint);
-        }
-
-        .pulse-status.paused {
             background: rgba(245, 158, 11, 0.08);
-            border-color: rgba(245, 158, 11, 0.25);
-            color: var(--accent-warn);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            cursor: pointer;
+            transition: all 0.25s var(--ease-fluid);
         }
 
-        .pulse-status.sleeping {
-            background: rgba(139, 92, 246, 0.12);
-            border-color: rgba(139, 92, 246, 0.35);
-            color: #C4B5FD;
-            animation: gentleSleepBlink 3s infinite ease-in-out;
+        .event-quick-pill:hover {
+            background: rgba(245, 158, 11, 0.16);
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .event-quick-pill.ended {
+            opacity: 0.7;
+            filter: grayscale(0.2);
+        }
+
+        .event-quick-pill.active {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: var(--accent-mint);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .event-quick-pill .event-time-badge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.35);
         }
 
         @keyframes gentleSleepBlink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
+        }
+
+        /* Event Intelligence Banner */
+        .event-marquee-banner {
+            margin: -6px auto 32px;
+            background: rgba(15, 15, 20, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-hairline);
+            border-radius: 16px;
+            padding: 12px 20px;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            transition: all 0.3s var(--ease-fluid);
+            position: relative;
+            z-index: 9;
+        }
+
+        .event-banner-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .event-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .event-icon-badge {
+            font-size: 22px;
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+        }
+
+        .event-title-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .event-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .event-title-main {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .event-state-badge {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+        }
+
+        .event-state-badge.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-mint);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .event-state-badge.ended {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--accent-warn);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .event-meta-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .event-countdown-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-hairline);
+            padding: 6px 14px;
+            border-radius: 10px;
+        }
+
+        .countdown-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .countdown-digits {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: #FBBF24;
+            letter-spacing: 0.02em;
+        }
+
+        .event-actions-cluster {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .event-tags-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .event-micro-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .event-micro-tag.source-tag {
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.25);
+            color: #7dd3fc;
+        }
+
+        .event-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .event-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-hairline);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s var(--ease-fluid);
+        }
+
+        .event-action-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .event-action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-hairline);
+            color: var(--accent-mint);
+            transform: translateY(-1px);
         }
 
         .sleep-row {
@@ -1109,13 +1304,13 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
-        input:checked + .switch-slider {
+        input:checked+.switch-slider {
             background-color: var(--accent-emerald);
             border-color: var(--accent-mint);
             box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
         }
 
-        input:checked + .switch-slider:before {
+        input:checked+.switch-slider:before {
             transform: translateX(20px);
         }
 
@@ -1212,9 +1407,11 @@
             0% {
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
             }
+
             50% {
                 box-shadow: 0 0 30px 4px rgba(16, 185, 129, 0.4);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
             }
@@ -1379,15 +1576,19 @@
     <div class="layout-container">
         <!-- Floating Island Navbar -->
         <nav class="island-nav">
+            <!-- Left: Brand & Live Status Pip -->
             <div class="brand-cluster">
                 <div class="brand-badge">Ω</div>
-                <div class="brand-title">
-                    <span>OwO Sentinel</span>
-                    <span class="version-pill">v4.0.0 Alpha</span>
+                <div class="brand-title-wrap">
+                    <span class="brand-title">OwO Sentinel</span>
+                    <div class="live-status-pill online" id="botStatusBadge" title="Bot Connection Status">
+                        <span class="pulse-dot"></span>
+                        <span id="botStatusText">Live</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Remote Controls (Item 2) -->
+            <!-- Center: Controls Dock -->
             <div class="nav-controls">
                 <button class="control-btn" id="btnTogglePause" title="Pause or Resume bot farming loop">
                     <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor">
@@ -1396,44 +1597,42 @@
                     </svg>
                     <span id="pauseBtnLabel">Pause</span>
                 </button>
+                <button class="control-btn btn-sleep-skip" id="btnSkipSleep" onclick="triggerSkipSleep()"
+                    title="Interrupt sleep timer and resume farming immediately" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>Skip Sleep</span>
+                </button>
+                <button class="control-btn" id="btnSyncCash" title="Query owo cash immediately to sync balance">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                    </svg>
+                    <span>Sync</span>
+                </button>
+                <button class="control-btn" id="btnConfigScroll" onclick="openConfigModal()"
+                    title="Configure bot automation modules and user settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    <span>Config</span>
+                </button>
                 <button class="control-btn btn-danger" id="btnStopBot" title="Stop bot process and terminate safely">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect>
                     </svg>
                     <span id="stopBtnLabel">Stop</span>
                 </button>
-                <button class="control-btn" id="btnSyncCash" title="Query owo cash immediately to sync balance">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-                    </svg>
-                    <span>Sync Cash</span>
-                </button>
-                <button class="control-btn btn-sleep-skip" id="btnSkipSleep" onclick="triggerSkipSleep()" title="Interrupt sleep timer and resume farming immediately" style="display: none;">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
-                    <span>Skip Sleep</span>
-                </button>
-                <button class="control-btn" id="btnConfigScroll" onclick="openConfigModal()" title="Configure bot automation modules and user settings">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </svg>
-                    <span>Config</span>
-                </button>
             </div>
 
+            <!-- Right: Event Quick Pill & Account -->
             <div class="nav-meta">
-                <!-- Event Countdown (Small Noti) -->
-                <div class="event-pill" id="eventPill" title="OwO October Event Ends 15-Oct-26 1:45 PM">
-                    <span class="event-icon">🎃</span>
-                    <span class="event-label">Oct Event:</span>
-                    <span class="event-time" id="eventCountdown">--d --h</span>
-                </div>
-
-                <div class="pulse-status" id="botStatusBadge">
-                    <span class="pulse-dot"></span>
-                    <span id="botStatusText">Gateway Live</span>
+                <div class="event-quick-pill" id="navEventChip" onclick="toggleEventMarquee()" title="Click to toggle Event Intelligence Banner / FAQ">
+                    <span class="event-emoji" id="navEventEmoji">🎃</span>
+                    <span class="event-name-short" id="navEventTitle">October Event</span>
+                    <span class="event-time-badge" id="navEventTime">--:--</span>
                 </div>
 
                 <div class="account-pill">
@@ -1442,6 +1641,45 @@
                 </div>
             </div>
         </nav>
+
+        <!-- Dedicated Event Intelligence Marquee / Sub-bar -->
+        <div class="event-marquee-banner" id="eventIntelligenceBanner">
+            <div class="event-banner-inner">
+                <div class="event-identity">
+                    <div class="event-icon-badge" id="eventIconBadge">🎃</div>
+                    <div class="event-title-stack">
+                        <div class="event-name-row">
+                            <span class="event-title-main" id="eventBannerTitle">October Event FAQ</span>
+                            <span class="event-state-badge ended" id="eventBannerStatus">Ended</span>
+                        </div>
+                        <div class="event-meta-sub" id="eventBannerSummary">Halloween, World Coffee Day</div>
+                    </div>
+                </div>
+
+                <div class="event-countdown-box">
+                    <div class="countdown-label">Ending Schedule:</div>
+                    <div class="countdown-digits" id="eventBannerCountdown">Ended (15-Oct-26 1:45 PM)</div>
+                </div>
+
+                <div class="event-actions-cluster">
+                    <div class="event-tags-row">
+                        <span class="event-micro-tag" id="tagSpecialGems">💎 Gems: Allowed</span>
+                        <span class="event-micro-tag" id="tagPetRates">🌈 Rates: 0.005%-0.05%</span>
+                        <span class="event-micro-tag source-tag" id="tagEventSource">📡 Auto-Synced</span>
+                    </div>
+                    <div class="event-btn-group">
+                        <button class="event-action-btn" onclick="openEventFaqModal()" title="View full announcement text parsed from Discord">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <span>Announcement FAQ</span>
+                        </button>
+                        <button class="event-action-btn" onclick="openEventEditModal()" title="Manually update event time or name">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            <span>Edit Event</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Bento Grid Layer -->
         <div class="bento-grid">
@@ -1485,7 +1723,8 @@
                             </svg>
                             Continuous Runtime
                         </span>
-                        <span class="version-pill" id="sleepPill" title="Anti-captcha random sleep cycle status">💤 Sleep: ~50 cmds</span>
+                        <span class="version-pill" id="sleepPill" title="Anti-captcha random sleep cycle status">
+                            Sleep: ~50 cmds</span>
                     </div>
 
                     <div class="hero-metric">
@@ -1500,8 +1739,9 @@
                         <span id="sleepStateLabel">Next Sleep:</span>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span id="sleepProgressText">0 / 0 cmds</span>
-                            <button class="mini-skip-btn" id="btnSkipSleepInline" onclick="triggerSkipSleep()" title="Skip sleep and resume farming right now" style="display: none;">
-                                ⚡ Skip
+                            <button class="mini-skip-btn" id="btnSkipSleepInline" onclick="triggerSkipSleep()"
+                                title="Skip sleep and resume farming right now" style="display: none;">
+                                Skip
                             </button>
                         </div>
                     </div>
@@ -1529,7 +1769,9 @@
                     <div class="hero-metric">
                         <div class="stat-comparison">
                             <div class="metric-value-large" id="sessionHunts">0</div>
-                            <span class="total-sub" onclick="editAllTime('hunts')" title="Click to adjust/sync all-time hunts baseline" style="cursor: pointer;">/ <span id="totalHunts">0</span> all-time ✎</span>
+                            <span class="total-sub" onclick="editAllTime('hunts')"
+                                title="Click to adjust/sync all-time hunts baseline" style="cursor: pointer;">/ <span
+                                    id="totalHunts">0</span> all-time ✎</span>
                         </div>
                         <div class="metric-subtext">Hunts dispatched this session</div>
                     </div>
@@ -1557,7 +1799,9 @@
                     <div class="hero-metric">
                         <div class="stat-comparison">
                             <div class="metric-value-large" id="sessionBattles">0</div>
-                            <span class="total-sub" onclick="editAllTime('battles')" title="Click to adjust/sync all-time battles baseline" style="cursor: pointer;">/ <span id="totalBattles">0</span> all-time ✎</span>
+                            <span class="total-sub" onclick="editAllTime('battles')"
+                                title="Click to adjust/sync all-time battles baseline" style="cursor: pointer;">/ <span
+                                    id="totalBattles">0</span> all-time ✎</span>
                         </div>
                         <div class="metric-subtext">Battles fought this session</div>
                     </div>
@@ -1584,7 +1828,9 @@
                     <div class="hero-metric">
                         <div class="stat-comparison">
                             <div class="metric-value-large" id="sessionTexts">0</div>
-                            <span class="total-sub" onclick="editAllTime('texts')" title="Click to adjust/sync all-time texts baseline" style="cursor: pointer;">/ <span id="totalTexts">0</span> all-time ✎</span>
+                            <span class="total-sub" onclick="editAllTime('texts')"
+                                title="Click to adjust/sync all-time texts baseline" style="cursor: pointer;">/ <span
+                                    id="totalTexts">0</span> all-time ✎</span>
                         </div>
                         <div class="metric-subtext">Chat activity pulses</div>
                     </div>
@@ -1799,8 +2045,8 @@
                         <div class="rarity-card">
                             <div class="rarity-top">
                                 <div class="rarity-badge rarity-cpatreon" title="Custom Patreon Tier 👑 (Animated GIF)">
-                                    <img src="/assets/rarities/cpatreon.gif" alt="Custom Patreon" class="rarity-icon-img"
-                                        referrerpolicy="no-referrer"
+                                    <img src="/assets/rarities/cpatreon.gif" alt="Custom Patreon"
+                                        class="rarity-icon-img" referrerpolicy="no-referrer"
                                         onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/4/4c/Custom_Patreon_%28Tier%29.gif/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
                                     <span class="rarity-fallback" style="display:none;">CP</span>
                                 </div>
@@ -1828,11 +2074,11 @@
                         <!-- Special / Event Pet -->
                         <div class="rarity-card">
                             <div class="rarity-top">
-                                <div class="rarity-badge rarity-event" title="Special / Event Tier 🎃">
+                                <div class="rarity-badge rarity-event" title="Special">
                                     <img src="/assets/rarities/special.png" alt="Special/Event" class="rarity-icon-img"
                                         referrerpolicy="no-referrer"
                                         onerror="if(this.src.indexOf('static.wikia')===-1){this.src='https://static.wikia.nocookie.net/owobot/images/c/c0/Special_%28Tier%29.png/revision/latest';}else{this.style.display='none';this.nextElementSibling.style.display='block';}" />
-                                    <span class="rarity-fallback" style="display:none;">🎃</span>
+                                    <span class="rarity-fallback" style="display:none;"></span>
                                 </div>
                                 <span class="rarity-name" style="color: #fbbf24;">Special</span>
                             </div>
@@ -1960,7 +2206,8 @@
     </div>
 
     <!-- Configuration Modal Window (Pop-up Window) -->
-    <div id="configModalOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target===this) closeConfigModal()">
+    <div id="configModalOverlay" class="modal-overlay" style="display: none;"
+        onclick="if(event.target===this) closeConfigModal()">
         <div class="modal-container" id="configModal">
             <!-- Modal Header -->
             <div class="modal-header">
@@ -1968,16 +2215,19 @@
                     <span class="eyebrow-tag">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                         Automation Modules & User Config
                     </span>
                     <h2 class="modal-title">Live Configuration Matrix</h2>
-                    <div class="modal-subtext">Toggle features on the fly. Real-time memory injection & auto-persisted to <code class="mono-code">b2ki-ados/data.json</code>.</div>
+                    <div class="modal-subtext">Toggle features on the fly. Real-time memory injection & auto-persisted
+                        to <code class="mono-code">b2ki-ados/data.json</code>.</div>
                 </div>
 
                 <div class="modal-header-actions">
-                    <button class="modal-close-btn" id="btnCloseConfigModal" onclick="closeConfigModal()" title="Close configuration (Esc)">
+                    <button class="modal-close-btn" id="btnCloseConfigModal" onclick="closeConfigModal()"
+                        title="Close configuration (Esc)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -2006,7 +2256,8 @@
                             <div class="config-item-desc">Dispatches owo hunt on cooldown</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoHunt" onchange="toggleConfig('autoHunt', this.checked, 'Auto Hunt')">
+                            <input type="checkbox" id="cfg_autoHunt"
+                                onchange="toggleConfig('autoHunt', this.checked, 'Auto Hunt')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2018,7 +2269,8 @@
                             <div class="config-item-desc">Dispatches owo battle on cooldown</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoBattle" onchange="toggleConfig('autoBattle', this.checked, 'Auto Battle')">
+                            <input type="checkbox" id="cfg_autoBattle"
+                                onchange="toggleConfig('autoBattle', this.checked, 'Auto Battle')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2030,7 +2282,8 @@
                             <div class="config-item-desc">Sends chat pulses to level up and keep active</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoQuoteEnabled" onchange="toggleConfig('autoQuoteEnabled', this.checked, 'Auto OwO/Quotes')">
+                            <input type="checkbox" id="cfg_autoQuoteEnabled"
+                                onchange="toggleConfig('autoQuoteEnabled', this.checked, 'Auto OwO/Quotes')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2042,7 +2295,8 @@
                             <div class="config-item-desc">Sends virtual pet training commands</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoRPPEnabled" onchange="toggleConfig('autoRPPEnabled', this.checked, 'Pet Care (RPP)')">
+                            <input type="checkbox" id="cfg_autoRPPEnabled"
+                                onchange="toggleConfig('autoRPPEnabled', this.checked, 'Pet Care (RPP)')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2054,7 +2308,8 @@
                             <div class="config-item-desc">Automates daily pray and curse targets</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoPrayEnabled" onchange="toggleConfig('autoPrayEnabled', this.checked, 'Auto Pray/Curse')">
+                            <input type="checkbox" id="cfg_autoPrayEnabled"
+                                onchange="toggleConfig('autoPrayEnabled', this.checked, 'Auto Pray/Curse')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2079,7 +2334,8 @@
                             <div class="config-item-desc">Auto-uses mythical/fabled star gems</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_useSpecialGem" onchange="toggleConfig('useSpecialGem', this.checked, 'Special Star Gems')">
+                            <input type="checkbox" id="cfg_useSpecialGem"
+                                onchange="toggleConfig('useSpecialGem', this.checked, 'Special Star Gems')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2091,7 +2347,8 @@
                             <div class="config-item-desc">Opens normal lootboxes (lb all) when held</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoLootbox" onchange="toggleConfig('autoLootbox', this.checked, 'Auto Lootbox')">
+                            <input type="checkbox" id="cfg_autoLootbox"
+                                onchange="toggleConfig('autoLootbox', this.checked, 'Auto Lootbox')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2103,7 +2360,8 @@
                             <div class="config-item-desc">Opens fabled lootboxes (lb fabled)</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoFabledLootbox" onchange="toggleConfig('autoFabledLootbox', this.checked, 'Fabled Lootbox')">
+                            <input type="checkbox" id="cfg_autoFabledLootbox"
+                                onchange="toggleConfig('autoFabledLootbox', this.checked, 'Fabled Lootbox')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2115,7 +2373,8 @@
                             <div class="config-item-desc">Claims daily cowoncy reward at midnight</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoDaily" onchange="toggleConfig('autoDaily', this.checked, 'Auto Daily')">
+                            <input type="checkbox" id="cfg_autoDaily"
+                                onchange="toggleConfig('autoDaily', this.checked, 'Auto Daily')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2127,7 +2386,8 @@
                             <div class="config-item-desc">Sells common animals if cowoncy is empty</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoSell" onchange="toggleConfig('autoSell', this.checked, 'Auto Sell')">
+                            <input type="checkbox" id="cfg_autoSell"
+                                onchange="toggleConfig('autoSell', this.checked, 'Auto Sell')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2139,7 +2399,8 @@
                             <div class="config-item-desc">Sends daily cookie to your admin ID</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoCookie" onchange="toggleConfig('autoCookie', this.checked, 'Auto Cookie')">
+                            <input type="checkbox" id="cfg_autoCookie"
+                                onchange="toggleConfig('autoCookie', this.checked, 'Auto Cookie')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2151,7 +2412,8 @@
                             <div class="config-item-desc">Sends lucky clover to your admin ID</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoClover" onchange="toggleConfig('autoClover', this.checked, 'Auto Clover')">
+                            <input type="checkbox" id="cfg_autoClover"
+                                onchange="toggleConfig('autoClover', this.checked, 'Auto Clover')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2159,11 +2421,12 @@
                     <!-- 14. Auto Sleep -->
                     <div class="config-item-card" data-cat="safety">
                         <div class="config-item-info">
-                            <div class="config-item-title">💤 Auto Sleep Mode</div>
+                            <div class="config-item-title"> Auto Sleep Mode</div>
                             <div class="config-item-desc">Natural 5-20m rest gaps to evade ban analysis</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoSleep" onchange="toggleConfig('autoSleep', this.checked, 'Auto Sleep Mode')">
+                            <input type="checkbox" id="cfg_autoSleep"
+                                onchange="toggleConfig('autoSleep', this.checked, 'Auto Sleep Mode')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2175,7 +2438,8 @@
                             <div class="config-item-desc">Dispatches and recalls Huntbot 24h</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoHuntbot" onchange="toggleConfig('autoHuntbot', this.checked, 'Auto HuntBot')">
+                            <input type="checkbox" id="cfg_autoHuntbot"
+                                onchange="toggleConfig('autoHuntbot', this.checked, 'Auto HuntBot')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2186,7 +2450,8 @@
                             <div class="config-item-title">🎯 HuntBot Upgrade Trait</div>
                             <div class="config-item-desc">Priority trait to upgrade on HuntBot</div>
                         </div>
-                        <select id="cfg_autoTrait" class="select-dark" onchange="toggleConfig('autoTrait', this.value, 'HuntBot Trait')">
+                        <select id="cfg_autoTrait" class="select-dark"
+                            onchange="toggleConfig('autoTrait', this.value, 'HuntBot Trait')">
                             <option value="efficiency">Efficiency</option>
                             <option value="duration">Duration</option>
                             <option value="cost">Cost</option>
@@ -2203,7 +2468,8 @@
                             <div class="config-item-desc">Auto-resumes farming after captcha clear</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoResume" onchange="toggleConfig('autoResume', this.checked, 'Auto Resume')">
+                            <input type="checkbox" id="cfg_autoResume"
+                                onchange="toggleConfig('autoResume', this.checked, 'Auto Resume')">
                             <span class="switch-slider"></span>
                         </label>
                     </div>
@@ -2215,9 +2481,19 @@
                             <div class="config-item-desc">Re-syncs configuration daily at midnight</div>
                         </div>
                         <label class="switch-label">
-                            <input type="checkbox" id="cfg_autoReload" onchange="toggleConfig('autoReload', this.checked, 'Auto Reload')">
+                            <input type="checkbox" id="cfg_autoReload"
+                                onchange="toggleConfig('autoReload', this.checked, 'Auto Reload')">
                             <span class="switch-slider"></span>
                         </label>
+                    </div>
+
+                    <!-- 19. Announcement Channel ID -->
+                    <div class="config-item-card" data-cat="system">
+                        <div class="config-item-info">
+                            <div class="config-item-title">📢 Announcement Channel ID</div>
+                            <div class="config-item-desc">Private channel ID tracking OwO announcements</div>
+                        </div>
+                        <input type="text" id="cfg_announcementChannelId" class="input-dark" placeholder="Channel ID..." style="width: 170px; padding: 6px 12px; font-family: var(--font-mono); font-size: 11px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-hairline); border-radius: 8px; color: var(--text-primary);" onchange="toggleConfig('announcementChannelId', this.value.trim(), 'Announcement Channel')">
                     </div>
                 </div>
             </div>
@@ -2228,9 +2504,126 @@
                     <span class="status-dot-green"></span>
                     <span>Live memory sync • Auto-persisted to data.json</span>
                 </div>
-                <button class="control-btn" id="btnDoneConfigModal" onclick="closeConfigModal()" style="padding: 6px 18px;">
+                <button class="control-btn" id="btnDoneConfigModal" onclick="closeConfigModal()"
+                    style="padding: 6px 18px;">
                     <span>Done</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event FAQ / Announcement Modal Window -->
+    <div id="eventFaqModalOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target===this) closeEventFaqModal()">
+        <div class="modal-container" style="max-width: 680px;">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow-tag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        OwO Event Intelligence
+                    </span>
+                    <h2 class="modal-title" id="faqModalTitle">🎃 October Event FAQ</h2>
+                    <div class="modal-subtext" id="faqModalSubtext">Announcement feed synchronized from OwO Bot Support #announcements.</div>
+                </div>
+                <div class="modal-header-actions">
+                    <button class="modal-close-btn" onclick="closeEventFaqModal()" title="Close (Esc)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="config-item-card" style="padding: 12px 14px;">
+                        <div class="config-item-info">
+                            <div class="config-item-title">⏳ Event Ending Schedule</div>
+                            <div class="config-item-desc" id="faqModalEnding">15-Oct-26 1:45 PM</div>
+                        </div>
+                    </div>
+                    <div class="config-item-card" style="padding: 12px 14px;">
+                        <div class="config-item-info">
+                            <div class="config-item-title">💎 Special Gems Allowed</div>
+                            <div class="config-item-desc" id="faqModalGems">Yes, allowed during this event</div>
+                        </div>
+                    </div>
+                    <div class="config-item-card" style="padding: 12px 14px;">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🌈 Pet Catch Rates</div>
+                            <div class="config-item-desc" id="faqModalRates">0.005% - 0.05%</div>
+                        </div>
+                    </div>
+                    <div class="config-item-card" style="padding: 12px 14px;">
+                        <div class="config-item-info">
+                            <div class="config-item-title">🎁 Event Item Drops</div>
+                            <div class="config-item-desc">Up to 10 per day via hunt/battle</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px;">
+                        📜 Parsed Announcement Feed:
+                    </div>
+                    <pre id="faqModalRaw" style="background: rgba(0,0,0,0.5); border: 1px solid var(--border-hairline); border-radius: 12px; padding: 14px; font-family: var(--font-mono); font-size: 11px; line-height: 1.6; color: #e5e7eb; white-space: pre-wrap; max-height: 240px; overflow-y: auto;">October Event FAQ</pre>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <button class="event-action-btn" onclick="closeEventFaqModal(); openEventEditModal();">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Edit Event Data</span>
+                </button>
+                <button class="control-btn" onclick="closeEventFaqModal()" style="padding: 6px 18px;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Edit / Override Modal Window -->
+    <div id="eventEditModalOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target===this) closeEventEditModal()">
+        <div class="modal-container" style="max-width: 600px;">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow-tag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        Manual Event Synchronizer
+                    </span>
+                    <h2 class="modal-title">Edit OwO Event Schedule</h2>
+                    <div class="modal-subtext">Manually set event dates or paste Discord announcement text to auto-parse.</div>
+                </div>
+                <div class="modal-header-actions">
+                    <button class="modal-close-btn" onclick="closeEventEditModal()" title="Close (Esc)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); display: block; margin-bottom: 6px;">Event Name</label>
+                    <input type="text" id="editEventName" class="input-dark" placeholder="e.g. October Event 2026" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-hairline); border-radius: 8px; color: var(--text-primary);">
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); display: block; margin-bottom: 6px;">End Date & Time (DD-Mon-YY HH:MM AM/PM or YYYY-MM-DD HH:MM)</label>
+                    <input type="text" id="editEventEnding" class="input-dark" placeholder="e.g. 15-Oct-26 1:45 PM" style="width: 100%; padding: 8px 12px; font-family: var(--font-mono); font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-hairline); border-radius: 8px; color: #fbbf24;">
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); display: block; margin-bottom: 6px;">Summary / Description</label>
+                    <input type="text" id="editEventSummary" class="input-dark" placeholder="e.g. Halloween, World Coffee Day" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-hairline); border-radius: 8px; color: var(--text-primary);">
+                </div>
+
+                <div style="margin-top: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">Paste Announcement to Auto-Parse</label>
+                        <button type="button" class="mini-skip-btn" onclick="autoParsePastedText()" style="font-size: 10px; padding: 3px 8px;">⚡ Auto-Parse</button>
+                    </div>
+                    <textarea id="editEventPasteText" rows="3" placeholder="Paste full message from OwO #announcements here..." style="width: 100%; padding: 8px 12px; font-family: var(--font-mono); font-size: 11px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-hairline); border-radius: 8px; color: var(--text-secondary); resize: vertical;"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="control-btn" onclick="closeEventEditModal()" style="padding: 6px 14px;">Cancel</button>
+                <button class="control-btn" onclick="saveEventManual()" style="padding: 6px 20px; background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: var(--accent-mint); font-weight: 700;">Save Event</button>
             </div>
         </div>
     </div>
@@ -2374,32 +2767,39 @@
             currentSnapshot = data;
             uptimeSeconds = data.uptimeSeconds || 0;
 
-            // Status Badge
+            // Status Badge (Integrated Pip in Brand)
             const statusBadge = document.getElementById('botStatusBadge');
             const statusText = document.getElementById('botStatusText');
-            if (data.status === 'captcha') {
-                statusBadge.className = 'pulse-status captcha';
-                statusText.textContent = 'Captcha Action Required';
-            } else if (data.status === 'paused') {
-                statusBadge.className = 'pulse-status paused';
-                statusText.textContent = 'Farming Paused';
-            } else if (data.status === 'sleeping') {
-                statusBadge.className = 'pulse-status sleeping';
-                statusText.textContent = 'Sleeping (Rest Period)';
-            } else if (data.status === 'stopped') {
-                statusBadge.className = 'pulse-status stopped';
-                statusText.textContent = 'Bot Stopped';
-                if (btnStopBot) {
-                    btnStopBot.disabled = true;
-                    btnStopBot.classList.add('stopped-active');
-                    stopBtnLabel.innerText = 'Stopped';
+            if (statusBadge && statusText) {
+                if (data.status === 'captcha') {
+                    statusBadge.className = 'live-status-pill captcha';
+                    statusText.textContent = 'Captcha!';
+                } else if (data.status === 'paused') {
+                    statusBadge.className = 'live-status-pill paused';
+                    statusText.textContent = 'Paused';
+                } else if (data.status === 'sleeping') {
+                    statusBadge.className = 'live-status-pill sleeping';
+                    statusText.textContent = 'Sleeping';
+                } else if (data.status === 'stopped') {
+                    statusBadge.className = 'live-status-pill stopped';
+                    statusText.textContent = 'Offline';
+                    if (btnStopBot) {
+                        btnStopBot.disabled = true;
+                        btnStopBot.classList.add('stopped-active');
+                        stopBtnLabel.innerText = 'Stopped';
+                    }
+                    if (btnTogglePause) {
+                        btnTogglePause.disabled = true;
+                    }
+                } else {
+                    statusBadge.className = 'live-status-pill online';
+                    statusText.textContent = 'Live';
                 }
-                if (btnTogglePause) {
-                    btnTogglePause.disabled = true;
-                }
-            } else {
-                statusBadge.className = 'pulse-status';
-                statusText.textContent = 'Gateway Live';
+            }
+
+            // Event Intelligence Sync
+            if (data.event) {
+                renderEventIntelligence(data.event);
             }
 
             // User meta
@@ -2476,7 +2876,7 @@
             if (!sleep) return;
 
             if (!sleep.enabled) {
-                if (sleepPill) sleepPill.textContent = '💤 Sleep: Off';
+                if (sleepPill) sleepPill.textContent = ' Sleep: Off';
                 if (sleepStateLabel) sleepStateLabel.textContent = 'Sleep Mode:';
                 if (sleepProgressText) sleepProgressText.textContent = 'Disabled';
                 if (sleepProgressFill) sleepProgressFill.style.width = '0%';
@@ -2491,13 +2891,13 @@
                 const s = rem % 60;
                 const timeStr = `${m}:${String(s).padStart(2, '0')}`;
                 if (sleepPill) {
-                    sleepPill.textContent = `💤 Sleeping (${timeStr})`;
+                    sleepPill.textContent = ` Sleeping (${timeStr})`;
                     sleepPill.style.background = 'rgba(139, 92, 246, 0.2)';
                     sleepPill.style.borderColor = 'rgba(139, 92, 246, 0.5)';
                     sleepPill.style.color = '#DDD6FE';
                 }
                 if (sleepRow) sleepRow.className = 'sleep-row is-sleeping';
-                if (sleepStateLabel) sleepStateLabel.textContent = '💤 Anti-Captcha Rest in Progress:';
+                if (sleepStateLabel) sleepStateLabel.textContent = ' Anti-Captcha Rest in Progress:';
                 if (sleepProgressText) sleepProgressText.textContent = `${timeStr} remaining`;
                 if (sleepProgressFill) {
                     const total = Math.max(1, sleep.sleepTotalSeconds || 1);
@@ -2509,7 +2909,7 @@
                 if (btnSkipSleepInline) btnSkipSleepInline.style.display = 'inline-flex';
             } else {
                 if (sleepPill) {
-                    sleepPill.textContent = `💤 Sleep: in ~${sleep.commandsUntilSleep || 0} cmds`;
+                    sleepPill.textContent = ` Sleep: in ~${sleep.commandsUntilSleep || 0} cmds`;
                     sleepPill.style.background = '';
                     sleepPill.style.borderColor = '';
                     sleepPill.style.color = '';
@@ -2563,10 +2963,10 @@
                 common: 0, uncommon: 0, rare: 0, epic: 0, mythical: 0, legendary: 0, fabled: 0,
                 gem: 0, hidden: 0, patreon: 0, cpatreon: 0, distorted: 0, event: 0
             };
-            const total = (r.common || 0) + (r.uncommon || 0) + (r.rare || 0) + (r.epic || 0) + 
-                          (r.mythical || 0) + (r.legendary || 0) + (r.fabled || 0) + 
-                          (r.gem || 0) + (r.hidden || 0) + (r.patreon || 0) + 
-                          (r.cpatreon || 0) + (r.distorted || 0) + (r.event || 0);
+            const total = (r.common || 0) + (r.uncommon || 0) + (r.rare || 0) + (r.epic || 0) +
+                (r.mythical || 0) + (r.legendary || 0) + (r.fabled || 0) +
+                (r.gem || 0) + (r.hidden || 0) + (r.patreon || 0) +
+                (r.cpatreon || 0) + (r.distorted || 0) + (r.event || 0);
 
             const pill = document.getElementById('totalCatchesPill');
             if (pill) pill.textContent = `${formatNumber(total)} Animals`;
@@ -2768,35 +3168,224 @@
             }
         });
 
-        // Event Countdown Ticker (Small Noti - Ends 15-Oct-26 1:45 PM)
-        const eventEndTimestamp = new Date("2026-10-15T13:45:00+07:00").getTime();
-        const eventCountdownElem = document.getElementById('eventCountdown');
+        // ================= Dynamic Event Intelligence & Announcement Tracker =================
+        let currentEventData = null;
 
-        function updateEventCountdown() {
-            if (!eventCountdownElem) return;
-            const now = Date.now();
-            const diff = eventEndTimestamp - now;
+        function renderEventIntelligence(ev) {
+            if (!ev) return;
+            currentEventData = ev;
 
-            if (diff <= 0) {
-                eventCountdownElem.textContent = "Ended";
-                return;
+            const bannerTitle = document.getElementById('eventBannerTitle');
+            const bannerStatus = document.getElementById('eventBannerStatus');
+            const bannerSummary = document.getElementById('eventBannerSummary');
+            const bannerCountdown = document.getElementById('eventBannerCountdown');
+            const navChip = document.getElementById('navEventChip');
+            const navTitle = document.getElementById('navEventTitle');
+            const navTime = document.getElementById('navEventTime');
+            const navEmoji = document.getElementById('navEventEmoji');
+            const iconBadge = document.getElementById('eventIconBadge');
+            const tagGems = document.getElementById('tagSpecialGems');
+            const tagRates = document.getElementById('tagPetRates');
+            const tagSource = document.getElementById('tagEventSource');
+
+            const title = ev.eventName || 'OwO Seasonal Event';
+            if (bannerTitle) bannerTitle.textContent = title;
+            if (navTitle) navTitle.textContent = title.length > 15 ? title.slice(0, 14) + '…' : title;
+
+            // Pick contextual emoji
+            let emoji = '🎃';
+            if (/easter/i.test(title)) emoji = '🥚';
+            else if (/christmas|xmas|winter/i.test(title)) emoji = '🎄';
+            else if (/valentine/i.test(title)) emoji = '💖';
+            else if (/summer/i.test(title)) emoji = '🏖️';
+            else if (/anniversary/i.test(title)) emoji = '🎉';
+            if (navEmoji) navEmoji.textContent = emoji;
+            if (iconBadge) iconBadge.textContent = emoji;
+
+            if (bannerSummary) {
+                bannerSummary.textContent = ev.summary || 'OwO Seasonal Event';
             }
 
-            const totalSecs = Math.floor(diff / 1000);
-            const days = Math.floor(totalSecs / 86400);
-            const hours = Math.floor((totalSecs % 86400) / 3600);
-            const mins = Math.floor((totalSecs % 3600) / 60);
+            if (tagGems) {
+                tagGems.textContent = `💎 Gems: ${ev.specialGemsAllowed ? 'Allowed' : 'Not Specified'}`;
+            }
+            if (tagRates) {
+                tagRates.textContent = `🌈 Rates: ${ev.petRates || '0.005%-0.05%'}`;
+            }
+            if (tagSource) {
+                tagSource.textContent = `📡 ${ev.source === 'auto' ? 'Auto-Synced' : 'Manual'}`;
+            }
 
-            if (days > 0) {
-                eventCountdownElem.textContent = `${days}d ${hours}h ${mins}m`;
+            const now = Date.now();
+            const diff = (ev.endTimestamp || 0) - now;
+            const isLive = diff > 0;
+
+            if (bannerStatus) {
+                bannerStatus.className = isLive ? 'event-state-badge active' : 'event-state-badge ended';
+                bannerStatus.textContent = isLive ? 'Active' : 'Ended';
+            }
+
+            if (navChip) {
+                navChip.className = isLive ? 'event-quick-pill active' : 'event-quick-pill ended';
+            }
+
+            if (diff <= 0) {
+                if (navTime) navTime.textContent = 'Ended';
+                if (bannerCountdown) bannerCountdown.textContent = `Ended (${ev.endingRaw || 'Past'})`;
             } else {
+                const totalSecs = Math.floor(diff / 1000);
+                const days = Math.floor(totalSecs / 86400);
+                const hours = Math.floor((totalSecs % 86400) / 3600);
+                const mins = Math.floor((totalSecs % 3600) / 60);
                 const secs = totalSecs % 60;
-                eventCountdownElem.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+                const countdownStr = days > 0
+                    ? `${days}d ${hours}h ${mins}m ${secs}s`
+                    : `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+                if (navTime) navTime.textContent = days > 0 ? `${days}d ${hours}h` : `${hours}h ${mins}m`;
+                if (bannerCountdown) bannerCountdown.textContent = `${countdownStr} remaining`;
             }
         }
 
-        updateEventCountdown();
-        setInterval(updateEventCountdown, 1000);
+        // Ticker smooth 1-sec countdown for active event
+        setInterval(() => {
+            if (currentEventData && currentEventData.endTimestamp) {
+                renderEventIntelligence(currentEventData);
+            }
+        }, 1000);
+
+        function toggleEventMarquee() {
+            openEventFaqModal();
+        }
+
+        // Event FAQ Modal
+        function openEventFaqModal() {
+            const overlay = document.getElementById('eventFaqModalOverlay');
+            if (!overlay) return;
+            const ev = currentEventData || {
+                eventName: 'October Event FAQ',
+                endingRaw: '15-Oct-26 1:45 PM',
+                specialGemsAllowed: true,
+                petRates: '0.005%-0.05%',
+                summary: 'Halloween, World Coffee Day',
+                announcementSnippet: '👻👻 October Event FAQ 👻👻\n\nWhat are the holidays being celebrated?\nHalloween, World Coffee Day\nHow long is the event?\n• Event ending at 15-Oct-26 1:45 PM\nHow many pets are available?\n• Catch Rates: 0.005%-0.05%\nCan I use my Special Gems for this event?\nYes, you can use your special gems during the event!'
+            };
+
+            document.getElementById('faqModalTitle').textContent = `🎃 ${ev.eventName || 'Event FAQ'}`;
+            document.getElementById('faqModalEnding').textContent = ev.endingRaw || 'N/A';
+            document.getElementById('faqModalGems').textContent = ev.specialGemsAllowed ? 'Yes, allowed during this event' : 'No / Not specified';
+            document.getElementById('faqModalRates').textContent = ev.petRates || '0.005% - 0.05%';
+            document.getElementById('faqModalRaw').textContent = ev.announcementSnippet || 'No announcement raw text recorded yet.';
+
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => overlay.classList.add('open'));
+        }
+
+        function closeEventFaqModal() {
+            const overlay = document.getElementById('eventFaqModalOverlay');
+            if (!overlay) return;
+            overlay.classList.remove('open');
+            setTimeout(() => overlay.style.display = 'none', 250);
+        }
+
+        // Event Edit Modal
+        function openEventEditModal() {
+            const overlay = document.getElementById('eventEditModalOverlay');
+            if (!overlay) return;
+            const ev = currentEventData || {};
+            document.getElementById('editEventName').value = ev.eventName || 'October Event';
+            document.getElementById('editEventEnding').value = ev.endingRaw || '';
+            document.getElementById('editEventSummary').value = ev.summary || '';
+            document.getElementById('editEventPasteText').value = '';
+
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => overlay.classList.add('open'));
+        }
+
+        function closeEventEditModal() {
+            const overlay = document.getElementById('eventEditModalOverlay');
+            if (!overlay) return;
+            overlay.classList.remove('open');
+            setTimeout(() => overlay.style.display = 'none', 250);
+        }
+
+        function autoParsePastedText() {
+            const txt = document.getElementById('editEventPasteText').value;
+            if (!txt || !txt.trim()) {
+                showToast('Please paste announcement text first!', true);
+                return;
+            }
+
+            // Extract title
+            const titleMatch = txt.match(/[\p{Emoji}\u200d\s]*([A-Za-z0-9 ]+?\s+(?:Event|FAQ))/iu);
+            if (titleMatch) {
+                document.getElementById('editEventName').value = titleMatch[1].replace(/FAQ/gi, '').trim();
+            }
+
+            // Extract ending
+            const endingMatch = txt.match(/(?:event ending at|ends at|ending at|ending:|ends on|runs until)\s*(?:at\s*)?([0-9]{1,2}-[A-Za-z]{3,9}-[0-9]{2,4}\s+[0-9]{1,2}:[0-9]{2}(?:\s*[AaPp][Mm])?|<t:\d+(?::[A-Za-z])?>|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4})/i);
+            if (endingMatch) {
+                document.getElementById('editEventEnding').value = endingMatch[1].trim();
+            }
+
+            // Extract summary
+            const holidayMatch = txt.match(/What are the holidays being celebrated\??\s*\n\s*([^\n\r]+)/i);
+            if (holidayMatch) {
+                document.getElementById('editEventSummary').value = holidayMatch[1].trim();
+            }
+
+            showToast('✓ Auto-parsed fields from announcement text!');
+        }
+
+        async function saveEventManual() {
+            const name = document.getElementById('editEventName').value.trim();
+            const endingRaw = document.getElementById('editEventEnding').value.trim();
+            const summary = document.getElementById('editEventSummary').value.trim();
+            const rawText = document.getElementById('editEventPasteText').value.trim();
+
+            if (!name) {
+                showToast('Please specify an Event Name.', true);
+                return;
+            }
+
+            let endTimestamp = null;
+            if (endingRaw) {
+                const dcMatch = endingRaw.match(/<t:(\d+)>/);
+                if (dcMatch) {
+                    endTimestamp = parseInt(dcMatch[1], 10) * 1000;
+                } else {
+                    const parsed = Date.parse(endingRaw);
+                    if (!isNaN(parsed)) endTimestamp = parsed;
+                }
+            }
+
+            try {
+                const res = await fetch('/api/action/set_event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eventName: name,
+                        endingRaw,
+                        endTimestamp: endTimestamp || (Date.now() + 7 * 86400 * 1000),
+                        summary,
+                        announcementSnippet: rawText || `Manual update for ${name}`,
+                        source: 'manual'
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.event) {
+                    renderEventIntelligence(data.event);
+                    showToast('✓ Event information updated successfully!');
+                    closeEventEditModal();
+                } else {
+                    showToast(data.error || 'Failed to update event.', true);
+                }
+            } catch (err) {
+                console.error('Save event error:', err);
+                showToast('Network error saving event.', true);
+            }
+        }
 
         // Live Uptime Incrementer
         setInterval(() => {
@@ -2943,6 +3532,12 @@
             if (traitEl && cfg.autoTrait) {
                 traitEl.value = cfg.autoTrait;
             }
+
+            // Announcement Channel ID
+            const annEl = document.getElementById('cfg_announcementChannelId');
+            if (annEl && cfg.announcementChannelId) {
+                annEl.value = cfg.announcementChannelId;
+            }
         }
 
         function updateGemModeUI(val) {
@@ -3040,9 +3635,10 @@
         }
 
         window.addEventListener('keydown', (e) => {
-            const overlay = document.getElementById('configModalOverlay');
-            if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+            if (e.key === 'Escape') {
                 closeConfigModal();
+                closeEventFaqModal();
+                closeEventEditModal();
             }
         });
 

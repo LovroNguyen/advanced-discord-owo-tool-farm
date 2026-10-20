@@ -69,8 +69,22 @@ export interface MetricsSnapshot {
     rarities: RarityCounts;
     totalRarities: RarityCounts;
     sleep: SleepInfo;
+    event: EventInfo;
     history: DataPoint[];
     dailyHistory: DailyRecord[];
+}
+
+export interface EventInfo {
+    eventName: string;
+    endTimestamp: number;
+    endingRaw?: string;
+    isActive: boolean;
+    summary?: string;
+    specialGemsAllowed?: boolean;
+    petRates?: string;
+    announcementSnippet?: string;
+    source?: "auto" | "manual";
+    updatedAt: number;
 }
 
 export interface SleepInfo {
@@ -187,6 +201,20 @@ export class MetricsTracker extends EventEmitter {
         trait: "efficiency",
     };
 
+    // Event Tracking & Intelligence
+    private eventFilePath = path.resolve(process.cwd(), "logs/event_state.json");
+    public eventInfo: EventInfo = {
+        eventName: "October Event",
+        endTimestamp: new Date("2026-10-15T13:45:00+07:00").getTime(),
+        endingRaw: "15-Oct-26 1:45 PM",
+        isActive: false,
+        summary: "Halloween, World Coffee Day",
+        specialGemsAllowed: true,
+        petRates: "0.005%-0.05%",
+        source: "auto",
+        updatedAt: Date.now(),
+    };
+
     // Time-series history for line chart (up to 60 historical points)
     private history: DataPoint[] = [];
     private maxHistoryLength: number = 60;
@@ -195,6 +223,7 @@ export class MetricsTracker extends EventEmitter {
     private constructor() {
         super();
         this.loadDailyRecords();
+        this.loadEventState();
         this.addHistoryPoint();
 
         // Flush immediately upon process exit/kill to prevent data loss
@@ -285,7 +314,54 @@ export class MetricsTracker extends EventEmitter {
                 rarities: this.totalRarities,
             };
             fs.writeFileSync(this.historyFilePath, JSON.stringify(payload, null, 2), "utf-8");
+            this.saveEventState();
         } catch {}
+    }
+
+    private loadEventState() {
+        try {
+            if (fs.existsSync(this.eventFilePath)) {
+                const data = JSON.parse(fs.readFileSync(this.eventFilePath, "utf-8"));
+                if (data && data.eventName) {
+                    const endTimestamp = Number(data.endTimestamp) || this.eventInfo.endTimestamp;
+                    this.eventInfo = {
+                        ...this.eventInfo,
+                        ...data,
+                        endTimestamp,
+                        isActive: Date.now() < endTimestamp,
+                    };
+                }
+            }
+        } catch {}
+    }
+
+    public saveEventState() {
+        try {
+            const dir = path.dirname(this.eventFilePath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(this.eventFilePath, JSON.stringify(this.eventInfo, null, 2), "utf-8");
+        } catch {}
+    }
+
+    public setEventInfo(info: Partial<EventInfo>) {
+        const endTimestamp = info.endTimestamp !== undefined ? Number(info.endTimestamp) : this.eventInfo.endTimestamp;
+        this.eventInfo = {
+            ...this.eventInfo,
+            ...info,
+            endTimestamp,
+            isActive: endTimestamp ? Date.now() < endTimestamp : false,
+            updatedAt: Date.now(),
+        };
+        this.saveEventState();
+        this.emitChange();
+    }
+
+    public getEventInfo(): EventInfo {
+        const isActive = this.eventInfo.endTimestamp ? Date.now() < this.eventInfo.endTimestamp : false;
+        return {
+            ...this.eventInfo,
+            isActive,
+        };
     }
 
     private saveDailyRecordsDebounced() {
@@ -591,6 +667,7 @@ export class MetricsTracker extends EventEmitter {
             rarities: this.sessionRarities,
             totalRarities: this.totalRarities,
             sleep: this.getSleepSnapshot(),
+            event: this.getEventInfo(),
             history: this.history,
             dailyHistory: this.getDailyHistory(7),
         };

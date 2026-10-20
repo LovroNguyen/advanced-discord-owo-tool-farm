@@ -72,6 +72,7 @@ export const ConfigSchema = z.object({
     showRPC: z.boolean().default(true),
     enableDashboard: z.boolean().default(true).optional(),
     dashboardPort: z.number().default(4040).optional(),
+    announcementChannelId: z.string().optional(),
     autoHunt: z.boolean().default(true).optional(),
     autoBattle: z.boolean().default(true).optional(),
     autoPrayEnabled: z.boolean().default(true).optional(),
