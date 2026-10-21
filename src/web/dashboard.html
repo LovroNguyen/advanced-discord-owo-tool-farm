@@ -2153,13 +2153,13 @@
                             7-Day Daily Performance & Output
                         </span>
                         <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-                            Daily aggregated Cowoncy profit and command volume across the past 7 days
+                            Daily aggregated command volume and Cowoncy profit across the past 7 days • OwO daily resets at 2:00 PM
                         </div>
                     </div>
 
                     <div class="chart-controls">
-                        <button class="filter-pill active" id="btnChartCowoncy">Daily Cowoncy Gain</button>
-                        <button class="filter-pill" id="btnChartActions">Daily Action Volume</button>
+                        <button class="filter-pill active" id="btnChartActions">Daily Action Volume</button>
+                        <button class="filter-pill" id="btnChartCowoncy">Daily Cowoncy Gain</button>
                     </div>
                 </div>
 
@@ -2368,7 +2368,7 @@
                     <div class="config-item-card" data-cat="economy">
                         <div class="config-item-info">
                             <div class="config-item-title">📅 Auto Daily</div>
-                            <div class="config-item-desc">Claims daily cowoncy reward at midnight</div>
+                            <div class="config-item-desc">Claims daily cowoncy reward after OwO reset at 2:00 PM</div>
                         </div>
                         <label class="switch-label">
                             <input type="checkbox" id="cfg_autoDaily"
@@ -2476,7 +2476,7 @@
                     <div class="config-item-card" data-cat="safety">
                         <div class="config-item-info">
                             <div class="config-item-title">🔁 Daily Config Reload</div>
-                            <div class="config-item-desc">Re-syncs configuration daily at midnight</div>
+                            <div class="config-item-desc">Re-syncs configuration daily after OwO 2:00 PM reset</div>
                         </div>
                         <label class="switch-label">
                             <input type="checkbox" id="cfg_autoReload"
@@ -2643,7 +2643,7 @@
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         };
 
-        let dailyChartMode = 'cowoncy'; // 'cowoncy' or 'actions'
+        let dailyChartMode = 'actions'; // 'actions' or 'cowoncy' (Daily Action Volume shown first)
 
         function renderDailyChart(dailyHistory) {
             if (!dailyHistory || dailyHistory.length === 0) return;

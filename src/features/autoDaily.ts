@@ -6,15 +6,14 @@ export default Schematic.registerFeature({
     name: "autoDaily",
     cooldown: () => {
         const now = new Date();
-        const nextDay = new Date(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate() + 1,
-            ranInt(0, 5),
-            ranInt(0, 59),
-            ranInt(0, 59)
-        );
-        return nextDay.getTime() - now.getTime();
+        const nextReset = new Date(now);
+        // OwO daily resets at 2:00 PM (14:00) local time.
+        // If it's already 14:00 or later today, schedule for tomorrow at 14:00 + jitter
+        if (now.getHours() >= 14) {
+            nextReset.setDate(nextReset.getDate() + 1);
+        }
+        nextReset.setHours(14, ranInt(1, 10), ranInt(0, 59), 0);
+        return Math.max(10000, nextReset.getTime() - now.getTime());
     },
     condition: async ({ agent: { config } }) => {
         if (!config.autoDaily) return false;

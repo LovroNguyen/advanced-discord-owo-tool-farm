@@ -240,16 +240,32 @@ export class MetricsTracker extends EventEmitter {
         }
     }
 
+    /**
+     * Determines the OwO Daily Cycle key (YYYY-MM-DD) based on 2:00 PM (14:00) reset.
+     * Each OwO cycle runs from 14:00 on Day D to 13:59:59 on Day D+1.
+     * All commands executed within this 24-hour window are aggregated under the cycle's starting date.
+     */
+    public static getOwoDayDate(date: Date = new Date(), resetHour: number = 14): {
+        dateKey: string;
+        dateObj: Date;
+    } {
+        const shifted = new Date(date.getTime() - resetHour * 3600 * 1000);
+        const year = shifted.getFullYear();
+        const month = String(shifted.getMonth() + 1).padStart(2, "0");
+        const day = String(shifted.getDate()).padStart(2, "0");
+        const dateKey = `${year}-${month}-${day}`;
+        return { dateKey, dateObj: shifted };
+    }
+
     private getTodayRecord(): DailyRecord {
-        const now = new Date();
-        const dateKey = now.toISOString().split("T")[0];
+        const { dateKey, dateObj } = MetricsTracker.getOwoDayDate(new Date(), 14);
         if (!this.dailyRecords[dateKey]) {
             const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             this.dailyRecords[dateKey] = {
                 date: dateKey,
-                dayLabel: `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`,
-                dayShort: days[now.getDay()],
+                dayLabel: `${days[dateObj.getDay()]}, ${months[dateObj.getMonth()]} ${dateObj.getDate()} (2 PM Reset)`,
+                dayShort: days[dateObj.getDay()],
                 hunts: 0,
                 battles: 0,
                 texts: 0,
@@ -389,11 +405,10 @@ export class MetricsTracker extends EventEmitter {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         for (let i = daysCount - 1; i >= 0; i--) {
-            const d = new Date(now);
-            d.setDate(d.getDate() - i);
-            const dateKey = d.toISOString().split("T")[0];
-            const dayShort = i === 0 ? "Today" : days[d.getDay()];
-            const dayLabel = `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+            const targetDate = new Date(now.getTime() - i * 24 * 3600 * 1000);
+            const { dateKey, dateObj } = MetricsTracker.getOwoDayDate(targetDate, 14);
+            const dayShort = i === 0 ? "Today" : days[dateObj.getDay()];
+            const dayLabel = `${days[dateObj.getDay()]}, ${months[dateObj.getMonth()]} ${dateObj.getDate()} (2 PM Reset)`;
 
             if (this.dailyRecords[dateKey]) {
                 list.push({
