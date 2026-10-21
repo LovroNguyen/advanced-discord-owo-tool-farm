@@ -27,6 +27,7 @@ export class InquirerUI {
         const guild = await this.configPrompter.listGuilds(guildCache, this.config.guildID);
         this.config.guildID = guild.id;
         this.config.channelID = await this.configPrompter.listChannels(guild, this.config.channelID);
+        this.config.announcementChannelId = await this.configPrompter.getAnnouncementChannel(guild, this.config.announcementChannelId);
 
         this.config.wayNotify = await this.configPrompter.getWayNotify(this.config.wayNotify);
         if (this.config.wayNotify.includes("webhook")) {

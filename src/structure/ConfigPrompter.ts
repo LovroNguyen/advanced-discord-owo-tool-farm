@@ -99,6 +99,36 @@ export class ConfigPrompter extends BasePrompter {
             validate: (choices) => choices.length > 0 || t("ui.channels.mustSelectOne"),
         });
 
+    public getAnnouncementChannel = async (guild: Guild, cache?: string): Promise<string | undefined> => {
+        const textChannels = guild.channels.cache
+            .filter((c) => c.isText())
+            .map((c) => ({ name: `#${c.name} (${c.id})`, value: c.id }));
+
+        const choices = [
+            { name: "Skip / None (Configure later on Dashboard)", value: "none" },
+            { name: "Enter Channel ID manually", value: "custom" },
+            ...textChannels,
+        ];
+
+        const selected = await this.ask(select<string>, {
+            message: "Select OwO Announcement Channel (for auto event tracking):",
+            choices,
+            default: cache ? (textChannels.some(c => c.value === cache) ? cache : "custom") : "none",
+        });
+
+        if (selected === "none") return undefined;
+        if (selected === "custom") {
+            const manualId = await this.ask(input, {
+                message: "Enter Announcement Channel ID:",
+                default: cache || "",
+                validate: (val) => !val || /^\d{17,20}$/.test(val.trim()) || "Invalid Discord Channel ID (must be 17-20 digits)",
+            });
+            return manualId.trim() || undefined;
+        }
+
+        return selected;
+    };
+
     public getWayNotify = (cache?: string[]): Promise<Configuration["wayNotify"]> =>
         this.ask(checkbox<Configuration["wayNotify"][number]>, {
             message: t("ui.notifications.selectWays"),
