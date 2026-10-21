@@ -9,24 +9,49 @@ export default Schematic.registerEvent({
         const { agent } = params;
         if (!message || !message.content) return;
 
-        // 1. Check if message is from configured announcementChannelId
+        const channelId = message.channelId;
+
+        // 1. Never inspect messages from active farming channels!
+        const farmingChannels = agent.config.channelID || [];
+        if (farmingChannels.includes(channelId) || channelId === agent.activeChannel?.id) {
+            return;
+        }
+
+        // 2. Strict channel filtering:
+        // - If announcementChannelId is configured, ONLY process messages from this exact channel!
+        // - If not configured, only process messages from channels explicitly named announcement/owo-news
         const configuredChannelId = agent.config.announcementChannelId;
         const channelName = (message.channel as any)?.name?.toLowerCase() || "";
-        const isConfiguredChannel = configuredChannelId ? message.channelId === configuredChannelId : false;
-        const isAnnouncementLike = channelName.includes("announcement") || channelName.includes("owo-news") || channelName.includes("event");
 
-        // 2. Parse announcement structure
-        const parsed = parseAnnouncementMessage(message.content);
-        if (!parsed) return;
-
-        // 3. Update if from designated channel or high-confidence event announcement
-        if (isConfiguredChannel || isAnnouncementLike || (parsed.endTimestamp && parsed.endTimestamp > 0)) {
-            agent.metricsTracker.setEventInfo({
-                ...parsed,
-                source: "auto",
-            });
-
-            logger.info(`📢 [OwO Event Tracker] Detected announcement: "${parsed.eventName}" (Ends: ${parsed.endingRaw || "N/A"})`);
+        if (configuredChannelId) {
+            if (channelId !== configuredChannelId) return;
+        } else {
+            const isAnnouncementChannel = channelName.includes("announcement") || channelName.includes("owo-news");
+            if (!isAnnouncementChannel) return;
         }
+
+        // 3. Parse announcement structure
+        const parsed = parseAnnouncementMessage(message.content);
+        if (!parsed || !parsed.endTimestamp) return;
+
+        // 4. Must be a real event ending (at least 1 hour into the future or valid date), not a short command cooldown!
+        const diff = parsed.endTimestamp - Date.now();
+        if (diff > 0 && diff < 1000 * 60 * 60) {
+            // Less than 1 hour is a cooldown/temp timer, not an OwO event
+            return;
+        }
+
+        // 5. Deduplicate: Don't log or overwrite if the event info is identical
+        const current = agent.metricsTracker.getEventInfo();
+        if (current && current.eventName === parsed.eventName && current.endTimestamp === parsed.endTimestamp) {
+            return;
+        }
+
+        agent.metricsTracker.setEventInfo({
+            ...parsed,
+            source: "auto",
+        });
+
+        logger.info(`📢 [OwO Event Tracker] Detected announcement: "${parsed.eventName}" (Ends: ${parsed.endingRaw || "N/A"})`);
     }
 });

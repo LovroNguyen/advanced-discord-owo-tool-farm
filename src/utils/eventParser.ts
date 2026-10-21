@@ -69,12 +69,16 @@ export function parseEventEndDate(rawStr: string): number | null {
 export function parseAnnouncementMessage(content: string): Partial<EventInfo> | null {
     if (!content || typeof content !== "string") return null;
 
-    // Check if message is related to an event / FAQ / announcement
-    const isEventAnnouncement = /(?:event|faq|holiday|halloween|christmas|easter|valentine|anniversary|summer)/i.test(content);
-    const hasEnding = /(?:event ending|ends at|ending at|ending:|ends on|until)\s*(?:at\s*)?([^\n\r]+)/i.test(content);
-    const hasDiscordTimestamp = /<t:\d+/.test(content);
+    // Reject standard OwO command cooldowns or gameplay prompts
+    if (/(?:slow down|please wait|be patient|hunt again|battle again|you can hunt|you can battle)/i.test(content)) {
+        return null;
+    }
 
-    if (!isEventAnnouncement && !hasEnding && !hasDiscordTimestamp) {
+    // Must be a legitimate event FAQ / announcement
+    const isEventFaq = /(?:event\s+faq|how long is the event|what are the holidays|how to get event items|special gems for this event|halloween|christmas|easter|valentine|anniversary)/i.test(content);
+    const hasEndingHeader = /(?:event ending(?:\s+at)?|ends at|ending at|ending:|ends on|runs until)/i.test(content);
+
+    if (!isEventFaq && !hasEndingHeader) {
         return null;
     }
 
@@ -93,12 +97,12 @@ export function parseAnnouncementMessage(content: string): Partial<EventInfo> | 
     let endingRaw: string | undefined;
     let endTimestamp: number | null = null;
 
-    const endingLineMatch = content.match(/(?:event ending at|ends at|ending at|ending:|ends on|runs until)\s*(?:at\s*)?([0-9]{1,2}-[A-Za-z]{3,9}-[0-9]{2,4}\s+[0-9]{1,2}:[0-9]{2}(?:\s*[AaPp][Mm])?|<t:\d+(?::[A-Za-z])?>|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}(?:\s+\d{1,2}:\d{2}\s*[AaPp][Mm])?)/i);
+    const endingLineMatch = content.match(/(?:event ending(?:\s+at)?|ends at|ending at|ending:|ends on|runs until)\s*(?:at\s*)?([0-9]{1,2}-[A-Za-z]{3,9}-[0-9]{2,4}\s+[0-9]{1,2}:[0-9]{2}(?:\s*[AaPp][Mm])?|<t:\d+(?::[A-Za-z])?>|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}(?:\s+\d{1,2}:\d{2}\s*[AaPp][Mm])?)/i);
     if (endingLineMatch) {
         endingRaw = endingLineMatch[1].trim();
         endTimestamp = parseEventEndDate(endingRaw);
-    } else {
-        // Look for any Discord timestamp in message
+    } else if (isEventFaq) {
+        // Only look for Discord timestamp if this is confirmed to be an Event FAQ
         const dcMatch = content.match(/<t:(\d+)(?::[A-Za-z])?>/);
         if (dcMatch) {
             endingRaw = dcMatch[0];
