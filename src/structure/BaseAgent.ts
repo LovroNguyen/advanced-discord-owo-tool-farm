@@ -544,7 +544,12 @@ export class BaseAgent {
     public updateConfig = (updates: Partial<Configuration>): boolean => {
         try {
             for (const [key, val] of Object.entries(updates)) {
-                (this.config as any)[key] = val;
+                try {
+                    (this.config as any)[key] = val;
+                } catch {}
+                try {
+                    (this.cache as any)[key] = val;
+                } catch {}
             }
 
             // Sync with data.json on disk: C:\Users\<user>\b2ki-ados\data.json
@@ -563,7 +568,7 @@ export class BaseAgent {
                 }
 
                 const userId = this.client?.user?.id || Object.keys(allData)[0] || "default";
-                allData[userId] = { ...(allData[userId] || {}), ...this.config, ...updates };
+                allData[userId] = { ...(allData[userId] || {}), ...updates };
                 fs.writeFileSync(dataPath, JSON.stringify(allData, null, 2), "utf-8");
                 logger.debug(`Persisted updated configuration to ${dataPath} for user ${userId}`);
             } catch (err) {

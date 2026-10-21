@@ -11,18 +11,18 @@
 export const watchConfig = <T extends object, U>(config: T, callback: (key: keyof T, oldValue: T[keyof T], value: T[keyof T]) => U) => {
     return new Proxy(config, {
         set(target, property, value) {
-            if (typeof property === "string" && property in target) {
+            if (typeof property === "string") {
                 const key = property as keyof T;
-                if (target[key] !== value) callback(key, target[key], value);
+                if ((target as any)[key] !== value) callback(key, (target as any)[key], value);
                 (target as any)[key] = value;
                 return true;
             }
             return false;
         },
         get(target, property) {
-            if (typeof property === "string" && property in target) {
+            if (typeof property === "string") {
                 const key = property as keyof T;
-                return target[key];
+                return (target as any)[key];
             }
             return undefined;
         }
